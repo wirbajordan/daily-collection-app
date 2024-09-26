@@ -2,11 +2,19 @@
 session_start();
 include_once '../config/config.php';
 
+
+// Check user role
+if ($_SESSION['role'] != 'collector') {
+    header('Location: ../forms_logic/login_register.php' );//redirect to logged in if role not valide
+    exit();
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../forms_logic/login_register.php'); // Redirect to login if not logged in
     exit();
 }
+
 
 // Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
@@ -21,7 +29,7 @@ $notifications = [];
 
 // Fetch notifications for the logged-in user
 $stmt = $mysqli->prepare("SELECT notification_id, message, created_at FROM notification WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $user_id);   
 $stmt->execute();
 $stmt->bind_result($notification_id, $message, $created_at);
 
@@ -54,8 +62,8 @@ $mysqli->close();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome To The Collector Dashboard DailyCollect</title>
-    <link rel="stylesheet" href="">
+    <title>Collector Dashboard</title>
+    <link rel="stylesheet" href="../collector_dashboard_css/style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,7 +72,8 @@ $mysqli->close();
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
+            height: 500px;
             margin: auto;
             background: white;
             padding: 20px;
@@ -115,7 +124,7 @@ $mysqli->close();
 <body>
 
 <div class="container">
-    <h1>User Dashboard</h1>
+    <h1>Hello Welcom To Collector  DailyCollect Dashboard</h1>
 
     <div class="notification-button">
         Notifications
@@ -142,6 +151,22 @@ $mysqli->close();
     <?php else: ?>
         <p>No new notifications.</p>
     <?php endif; ?>
+    
+    <!-- register contribution button -->
+    <a href="collector_register_contribution.php">
+    <button class="button">Register Contribution</button>
+    </a>
+    <!-- the js for register contribution button -->
+    <script>
+        document.querySelector('.button').onclick = function(event) {
+            const confirmAction = confirm("Are you sure you want to register a contribution?");
+            if (!confirmAction) {
+                event.preventDefault(); // Prevent navigation if the user cancels
+            }
+        };
+    </script><!-- the end of js for register contribution button -->
+
+
 </div>
 </body>
 </html>

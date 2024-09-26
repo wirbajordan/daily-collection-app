@@ -8,7 +8,7 @@ $errorMessage = '';
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
-    header('Location: ../forms_logic/login_register.php' );
+    header('Location: ../forms_logic/login_register.php' );//redirect to logged in if role not valide
     exit();
 }
 

@@ -11,7 +11,7 @@ unset($_SESSION['success_message']);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,7 +62,8 @@ unset($_SESSION['success_message']);
     </div>
 
     <script src="scripts/login_register.js"></script>
-
+    
+    <!-- this is the css for the login and register form -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,6 +71,7 @@ unset($_SESSION['success_message']);
             margin: 0;
             padding: 20px;
         }
+        
         .container {
             max-width: 500px;
             margin: auto;
@@ -131,8 +133,9 @@ unset($_SESSION['success_message']);
             color: green;
             margin-bottom: 15px;
         }
-    </style>
-
+    </style><!-- the end of login and register form -->
+     
+     <!-- the JS for the login and register button and form -->
     <script>
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
@@ -150,6 +153,6 @@ unset($_SESSION['success_message']);
             document.getElementById(tabName).style.display = "block";  
             evt.currentTarget.className += " active";
         }
-    </script>
+    </script><!-- the end of JS for login and register button and form -->
 </body>
 </html>

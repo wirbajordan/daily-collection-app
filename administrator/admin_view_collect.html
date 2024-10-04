@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Users Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>       
+
+<h1>Users Locations</h1>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Initialize the map
+    const map = L.map('map').setView([20, 0], 2); // Set initial view to a global view
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Fetch users' locations
+fetch('admin_view_location_collect_get_users.php')
+    .then(response => response.json())
+    .then(users => {
+        if (users.length === 0) {
+            alert("No users with valid locations found.");
+            return; // Exit if no valid users are found
+        }
+
+        users.forEach(user => {
+            const marker = L.marker([user.latitude, user.longitude]).addTo(map);
+            marker.bindPopup(`<b>${user.username}</b><br>Role: ${user.role}`).openPopup();
+        });
+    })
+    .catch(error => console.error('Error fetching user data:', error));
+</script>
+
+</body>
+</html>

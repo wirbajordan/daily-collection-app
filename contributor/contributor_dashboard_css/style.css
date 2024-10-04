@@ -1,0 +1,23 @@
+ 
+/* this is the css for the deposite contribution in the contributor dashboard*/
+.deposit-button {
+    text-decoration: none; /* Remove underline from the link */
+}
+
+.deposit-button button {
+    width: 20%; /* Make the button full-width */
+    padding: 10px; /* Vertical and horizontal padding */
+    background-color: #28a745; /* Green background color */
+    color: white; /* White text color */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.deposit-button button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+

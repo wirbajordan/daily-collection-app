@@ -1,88 +1,263 @@
 <?php
 session_start(); // Start the session if needed
+
+include_once 'config/config.php';
+
+// Create a new mysqli instance
+$mysqli = new mysqli($host, $username, $password, $dbname);
+
+// Check connection
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Check if the form is submitted  
+if (isset($_POST["ok"])) {
+    // Get the input values and sanitize
+    $user_name = trim($_POST['username']);
+    $user_email = trim($_POST['email']);
+    $user_phone_number = trim($_POST['phone_number']);
+    $user_password = trim($_POST['password']);
+    $user_role = trim($_POST['role']);
+
+    // Basic validation
+    if (empty($user_name) || empty($user_email) || empty($user_password)) {
+        $_SESSION['error_message'] = "All fields are required.";
+        header('Location: register.php'); // Redirect back to the registration form
+        exit();
+    } else {
+        // Hash the password
+        $passwordhash = sha1($user_password);
+       //$hashed_password = password_hash($user_password, PASSWORD_DEFAULT);
+
+        // Prepare and execute the SQL statement
+        $stmt = $mysqli->prepare("INSERT INTO users (username, email, phone_number,  password, role) VALUES (?, ?, ?, ?, ?)");
+        
+        if ($stmt) {
+            // Bind parameters
+            $stmt->bind_param("sssss", $user_name, $user_email, $user_phone_number,   $passwordhash, $user_role);
+
+            // Execute and check for success
+            if ($stmt->execute()) {
+                $_SESSION['success_message'] = "Registration successful! You can now log in.";
+                header('Location: login.php'); // Redirect to login page
+
+             // In your registration_logic.php after successful registration
+           
+
+            } else {
+                $_SESSION['error_message'] = "Registration failed: " . $stmt->error;
+                header('Location: register.php'); // Redirect back to the registration form
+            }
+
+            // Close the statement
+            $stmt->close();
+        } else {
+            $_SESSION['error_message'] = "Preparation failed: " . $mysqli->error;
+            header('Location: register.php'); // Redirect back to the registration form
+        }
+    }
+}
+
+// Close the database connection
+$mysqli->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyCollect Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 300px; /* Fixed width for the form */
-        }
-        h1 {
-            color: #333;
-        }
-        .registration-form {
-            margin-top: 20px;
-        }
-        input[type="text"], input[type="number"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        @media (max-width: 400px) {
-            .container {
-                width: 90%; /* Responsive width */
+
+    <head>
+        <link rel="stylesheet" type="text/css" href="ubcss/bootstrap.css"> 
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+        <title>DailyCollect</title>
+        <meta content="" name="description">
+        <meta content="" name="keywords">
+
+        <!-- Favicons -->
+        <link href="assets/img/favicon.png" rel="icon">
+        <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+            rel="stylesheet">
+
+        <!-- Vendor CSS Files -->
+        <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+        <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+        <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+        <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+        <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+        <!-- Template Main CSS File -->
+        <link href="assets/css/main.css" rel="stylesheet">
+
+        <!-- =======================================================
+        * Template Name: UpConstruction - v1.3.0
+        * Template URL: https://bootstrapmade.com/upconstruction-bootstrap-construction-website-template/
+        * Author: BootstrapMade.com
+        * License: https://bootstrapmade.com/license/
+        ======================================================== -->
+        <style>
+            .body{
+                background-color: pink;
             }
-        }
-    </style>
-</head>  
-<body>
-<div class="container">
-    <h1>Hello welcome to DailyCollect</h1>
-    <div class="registration-form">
-        <?php if (isset($_GET['error'])): ?>
-            <p style="color: red;"><?php echo htmlspecialchars($_GET['error']); ?></p>
-        <?php endif; ?>
-        <h2>Register</h2>
-        <form action="registration_logic.php" method="POST">
-            <input type="text" name="reg_username" placeholder="Username" required>
-            <input type="text" name="reg_email" placeholder="Email" required>
-            <input type="number" name="reg_number" placeholder="Phone Number" required>
-            <input type="password" name="reg_password" placeholder="Password" required>
-            <button type="submit">Register</button>
-        </form>
-    </div>
-</div>
-<script>
-    // Basic JavaScript for future enhancements
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Registration page loaded.');
-    });
-</script>
+
+            .fm{
+                position: absolute;
+                margin-left: 40%;
+                margin-top: -35%;
+                height: 20px;
+                width: 250px;
+            }
+
+            .well{
+                background-color: green;
+            }
+
+            .form-control:focus {
+                z-index: 10;
+                border-color: #4cae4c;
+            }
+
+            .btns{
+                background-color: #7a43b6;
+            }
+
+            .txt{
+                color: white;
+            }
+
+
+
+
+        </style>
+    </head>
+
+    <body>
+
+        <!-- ======= Header ======= -->
+        <header id="header" class="header d-flex align-items-center">
+            <div class="container-fluid container-xl d-flex align-items-center justify-content-between">   <!-- 1.d-flex: Aligns Ub att with nav bar /// 2.justify-content-between: Means keeping a space between the UB attestation and the nav bar  -->
+
+                <a href="index.html" class="logo d-flex align-items-center">
+                    <img src="assets/img/logo.png" alt="">
+                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
+                </a>
+
+                <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
+                <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
+                <nav id="navbar" class="navbar">
+                    <ul>
+                        <li><a href="home.php" class="active">Home</a></li>
+                        <li><a href="about.php">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="login.php"><button class="btn btn-success">LOGIN</button></a></li> 
+                        <li><a href="signup.php"><button class="btn btn-info">REGISTER</button></a></li> 
+                    </ul>
+                </nav><!-- .navbar -->
+
+            </div>
+        </header><!-- End Header -->
+
+
+        <!-- ======= Hero Section ======= -->
+        <section id="hero" class="hero">
+            <div class="info d-flex align-items-center">
+
+                <span class="fm"><form name="" method="POST" action="">
+                        <label class="txt" style=" margin-left: 35%;"><b>REGISTER</b></label><br>
+                        <label class="txt">Username</label>
+                        <input type="text" required="" class="form-control" placeholder="Enter your username" name="username" value="" autofocus="" ><br>
+                        <label class="txt">Email</label>
+                        <input type="text" required="" class="form-control" placeholder="Enter your email" name="email" value="" autofocus="" ><br>
+                        <label class="txt">Phone Number</label>
+                        <input type="number" required="" class="form-control" placeholder="Enter your phone number" name="phone_number" value="" autofocus="" ><br>
+                        <label class="txt">Password</label>
+                        <input type="password" required="" class="form-control" placeholder="Enter your password" name="password" value="" autofocus="" ><br>
+                         
+                        <label class="txt">role</label>
+                        <select id="role" name="role" placeholder="Select your role" class="form-control input-md" >
+                            <option value="" <?php
+                            if (!isset($_GET['role']))
+                                echo "selected";
+                            ?>>Select Role</option>
+                            <option value="collector" <?php
+                            if (isset($_GET['role'])) {
+                                if ($_GET['role'] == "collector")
+                                    echo "selected";
+                            }
+                            ?>>collector</option>
+                            <option value="contributor" <?php
+                            if (isset($_GET['role'])) {
+                                if ($_GET['role'] == "contributor")
+                                    echo "selected";
+                            }
+                            ?>>contributor</option> </select>
+                            <br>
+                        <a href="login.php"><button name="ok" class="btn btn-primary" style="height: 37px; width: 250px"> register </button></a><br><br>
+                    </form></span>
+
+            </div>
+
+
+            <div id="hero-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="500000">
+
+            <div class="carousel-item active" style="background-image: url(assets/img/hero-carousel/five.jpg)">
+                </div>
+                <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/coins.jpg)"></div>
+                <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/coins2.jpg)"></div>
+                <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/coins3.jpg)"></div>
+                <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/ten1.jpg)"></div>
+
+                <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+                </a>
+
+                <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+                </a>
+
+            </div>
+
+        </section><!-- End Hero Section -->
+
+
+        <!-- Vendor JS Files -->
+        <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/vendor/aos/aos.js"></script>
+        <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+        <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+        <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+        <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+        <script src="assets/vendor/php-email-form/validate.js"></script>
+
+        <!-- Template Main JS File -->
+        <script src="assets/js/main.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"> 
+        <title>LOGIN</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Vendor CSS Files -->
+        <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+        <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+        <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+        <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+        <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+        <!-- Template Main CSS File -->
+        <link href="assets/css/main.css" rel="stylesheet">
+
+
+    </head>        
 </body>
 </html>
+

@@ -2,9 +2,23 @@
 session_start();
 include ('../config/config.php');
 
+
+// Check user role
+if ($_SESSION['role'] != 'contributor') {
+    header('Location: .../login.php');//redirect to logged in if role not valide
+    exit();
+}
+
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: .../login.php'); // Redirect to login if not logged in
+    exit();
+}    
+
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="../ubcss/bootstrap-3.0.0/dist/css/bootstrap.css">
@@ -100,7 +114,7 @@ include ('../config/config.php');
                     <?php
                     if ((!($_SESSION ["password"]))) {
                         session_destroy();
-                        header("location:../login.php");
+                        header("location:.../login.php");
                     } else {
                         $email = $_SESSION['email'];
                         $username = $_SESSION['username'];
@@ -108,8 +122,9 @@ include ('../config/config.php');
 
                         include_once ('../config/config.php');
 
+                 
                         echo '<span class="pull-right top title1" style="margin-left:40px;"><span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span> <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
-                        . '<a href="javascript:deconnexion()" style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
+                        . '<a href="../home.php"  style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
                     }
                     $result = mysqli_query($mysqli, "SELECT * FROM users WHERE username='$username'") or die('Error');
                     ($row = mysqli_fetch_array($result));
@@ -118,7 +133,7 @@ include ('../config/config.php');
 
                   
                     ?>
-
+l
                 </div>
                 <!-- navbar -->
                 <nav id="navbar" class="navbar">
@@ -148,7 +163,7 @@ include ('../config/config.php');
                                         echo 'page dos not exist';
                                     }
                                 } else {
-                                    include ('contributor.php');
+                                    include ('contributor.php'); 
                                 }
                             }
                             ?>

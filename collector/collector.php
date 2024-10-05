@@ -1,6 +1,20 @@
 <?php
 session_start();
 include ('../config/config.php');
+
+
+// Check user role
+if ($_SESSION['role'] != 'collector') {
+    header('Location: ../login.php');//redirect to logged in if role not valide
+    exit();
+}
+
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redirect to login if not logged in
+    exit();
+}    
 ?>
 
 <!DOCTYPE html>
@@ -217,7 +231,7 @@ include ('../config/config.php');
 
                         include_once ('../config/config.php');
                         echo '<span class="pull-right top title1" style="margin-left:40px;"><span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span> <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
-                        . '<a href="javascript:deconnexion()" style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
+                        . '<a href="../home.php" style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
                     }
                     $result = mysqli_query($mysqli, "SELECT * FROM users WHERE username='$username'") or die('Error');
                     ($row = mysqli_fetch_array($result));

@@ -1,157 +1,197 @@
-/* admin_dashbord css for nottification text area and the button */
-body {
-font-family: Arial, sans-serif;
-color: #333;
-background-size: cover;
-background-position: center;
-height: 100vh;
-margin: 0;
-padding: 20px;
+/* this is the css for the manage report heading*/
+.text-center {
+    text-align: center;          /* Centers text horizontally */
+    font-size: 2em;             /* Increases font size */
+    color: #333;                /* Sets text color */
+    margin: 20px 0;             /* Adds vertical spacing */
+    font-family: Arial, sans-serif; /* Sets font family */
+    font-weight: bold;          /* Makes text bold */
 }
 
-.container {
-background-color: rgba(255, 255, 255, 0.8);
-border-radius: 8px;
-padding: 20px;
-margin: auto;
-max-width: 800px;
+.text-center span {
+    display: inline-block;       /* Allows additional styling */
+    padding: 10px 20px;         /* Adds padding around the text */
+    background-color: #007bff;  /* Sets background color */
+    color: white;               /* Sets text color to white */
+    border-radius: 5px;         /* Rounds the corners */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
-h1, h2 {
-text-align: center;
+.text-center span:hover {
+    background-color: #0056b3;  /* Darkens background on hover */
 }
 
-table {
-width: 100%;
-border-collapse: collapse;
-margin: 20px 0;
-}
+  h1, h2 {
+        text-align: center;
+        }
 
-th, td {
-border: 1px solid #ddd;
-padding: 8px;
-text-align: center;
-}
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        }
 
-th {
-background-color: #f2f2f2;
-}
+        th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        }
 
-button {
-padding: 10px 15px;
-margin-top: 10px;
-border: none;
-color: white;
-background-color: #28a745;
-cursor: pointer;
-}
+        th {
+        background-color: #f2f2f2;
+        }
 
-button:hover {
-background-color: #218838;
-}
+        button {
+        padding: 10px 15px;
+        margin-top: 10px;
+        border: none;
+        color: white;
+        background-color: #28a745;
+        cursor: pointer;
+        }
 
-textarea {
-width: 100%;
-height: 100px;
-margin-bottom: 10px;
-font-size: 25px;
-}
-
-/* css for the delete_notification button*/
-
-button {
-    padding: 10px 15px;
-    margin-top: 10px;
-    border: none;
-    color: white;
-    background-color: #28a745; /* Default button color */
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    opacity: 0.9; /* Slightly dim on hover */
-}
-
-/* Specific styles for delete button */
-button.delete {
-    background-color: #dc3545; /* Red color for delete */
-}
-
-button.delete:hover {
-    background-color: #c82333; /* Darker red on hover */
-}
+        button:hover {
+        background-color: #218838;
+        }
 
 
-   /* css for the sucess  and error message*/
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 10px;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-}
+        /* css for the delete_notification button*/
 
-    .error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-}
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            border: none;
+            color: white;
+            background-color: #28a745; /* Default button color */
+            cursor: pointer;
+            border-radius: 30px;
+        }
 
-/* css for generate report*/
+        button:hover {
+        opacity: 0.9; /* Slightly dim on hover */
+        }
+
+        /* Specific styles for delete button */
+        button.delete {
+        background-color: #dc3545; /* Red color for delete */
+        }
+
+        button.delete:hover {
+        background-color: #c82333; /* Darker red on hover */
+        }
+
+
+        /* css for the sucess  and error message*/
+        .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+        }
+
+        .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+        }
+
+        /* css for generate report*/
+
+        .centered-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            display: flex;
+            justify-content: center; /* Centers horizontally */
+            align-items: center;     /* Centers vertically */
+            height: 50vh;          /* Full viewport height */
+            background-color: skyblue;
+        }
         form {
-    margin: 20px 0;
-}
+        margin: 20px 0;
+        display: flex;
+        
+        }
 
-label {
-    margin-right: 10px;
-}
+        label {
+        margin-right: 10px;
+        font-size: 25px;
+        }
 
-select, button {
-    padding: 10px;
-    margin: 5px;
-}
-    
-/* css for contributor and collectors list*/
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-th {
-    background-color: #f2f2f2;
-}
-.button-container {
-    margin: 20px 0;
-}
-.button {
-    padding: 10px 20px;
-    margin-right: 10px;
-    cursor: pointer;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-.button:hover {
-    background-color: #0056b3;
-}
-#closeButton {
-    display: none; /* Hidden initially */
-    margin-top: 10px;
-}
+        select, button {
+        padding: 10px;
+        margin: 5px;
+        height: 50px;
+        font-size: 25px;
+        }
 
+        /* css for contributor and collectors list*/
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        }
+        th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+        }
+        th {
+        background-color: #f2f2f2;
+        }
+        .button-container {
+        margin: 20px 0;
+        }
+        .button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        cursor: pointer;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        }
+        .button:hover {
+        background-color: #0056b3;
+        }
+        #closeButton {
+        display: none; /* Hidden initially */
+        margin-top: 10px;
+            }
+     /* this is the css for the manage report heading*/
+        .text-center {
+        text-align: center;          /* Centers text horizontally */
+        font-size: 2em;             /* Increases font size */
+        color: #333;                /* Sets text color */
+        margin: 20px 0;             /* Adds vertical spacing */
+        font-family: Arial, sans-serif; /* Sets font family */
+        font-weight: bold;          /* Makes text bold */
+        }
 
-   
+        .text-center span {
+        display: inline-block;       /* Allows additional styling */
+        padding: 10px 20px;         /* Adds padding around the text */
+        background-color: #007bff;  /* Sets background color */
+        color: white;               /* Sets text color to white */
+        border-radius: 5px;         /* Rounds the corners */
+        transition: background-color 0.3s; /* Smooth transition for hover effect */
+        }
 
+        .text-center span:hover {
+        background-color: #0056b3;  /* Darkens background on hover */
+        }
+
+        
+
+        

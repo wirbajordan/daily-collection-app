@@ -6,8 +6,6 @@ session_start();
 $successMessage = '';
 $errorMessage = '';
 
-
-
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
     header('Location: .../login.php');//redirect to logged in if role not valide
@@ -24,12 +22,9 @@ if (!isset($_SESSION['user_id'])) {
 ?>
 
 
-
-
-
 <!DOCTYPE html>   
 <html>
-    <head>
+    <head>  
        
         <link rel="stylesheet" type="text/css" href="../ubcss/bootstrap-3.0.0/dist/css/bootstrap.css">
         <script src="../ubjs/script.js"></script>
@@ -66,70 +61,92 @@ if (!isset($_SESSION['user_id'])) {
 
         <!-- Template Main CSS File -->
         <link href="../assets/css/main.css" rel="stylesheet">
-        <link href=" admin_dashboard_css/styles.css" rel="stylesheet">
+        <link  rel="stylesheet" href="admin_dashboard_css/styles.css">
         <script src="admin_dashboard_js/scripts.js" defer></script>
 
 
         <style>
-            .tit{
-                margin-left: 40px;
-            }
-            .title{
-                font-family:'typo';
-            }
-            .title1{
-                font: 12px "Century Gothic", "Times Roman", sans-serif;
-            }
-            .header{
-                background:#495057;
-                height:111px;
-            }
-            .logo{
-                color: white;
-            }
-            .panel{
-                border-color:#eee;
-                margin:20px;
-                padding:20px;
-                font: 15px "Century Gothic", "Times Roman", sans-serif;
-            }
-            .body{
-                background-color: pink;
-            }
+            /* this is the css for the admin.php*/
+        .tit{
+            margin-left: 40px;
+        }
+        .title{
+            font-family:'typo';
+        }
+        .title1{
+            font: 12px "Century Gothic", "Times Roman", sans-serif;
+        }
+        .header{
+            background:#495057;
+            height:111px;
+        }
+        .logo{
+            color: white;
+        }
+        .panel{
+            border-color:#eee;
+            margin:20px;
+            padding:20px;
+            font: 15px "Century Gothic", "Times Roman", sans-serif;
+        }
+        .body{
+            background-color: pink;
+    
+        }
 
-            .fm{
-                position: absolute;
-                margin-left: 40%;
-                margin-top: -1.5%;
-                height: 20px;
-                width: 250px;
-            }
+        .fm{
+            position: absolute;
+            margin-left: 40%;
+            margin-top: -1.5%;
+            height: 20px;
+            width: 250px;
+        }
 
-            .well{
-                background-color: green;
-            }
+        .well{
+            background-color: green;
+        }
 
-            .form-control:focus {
-                z-index: 10;
-                border-color: #4cae4c;
-            }
+        .form-control:focus {
+            z-index: 10;
+            border-color: #4cae4c;
+        }
 
-            .btns{
-                background-color: #7a43b6;
-            }
+        .btns{
+            background-color: #7a43b6;
+        }
 
-            .txt{
-                color: white;
-            }
-            .fa.active{
-                background: #fff;
-            }
+        .txt{
+            color: white;
+        }
+        .fa.active{
+            background: #fff;
+        }
 
-        </style>
+        
+     /* part of the css for notification text area */
+     textarea {
+        width: 50%;
+        height: 200px;
+        margin-bottom: 10px;
+        font-size: 25px;
+        }
+
+        body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        margin: 0;
+        padding: 20px;
+        }
+
+     </style>
 
     </head>
     <body style="color:black; background-color: #eee;">
-
+      
+    
 
         <div class="header" style="background-image: url(../assets/img/hero-carousel/html1.jpg)">
             <div class="container-fluid ">
@@ -149,7 +166,7 @@ if (!isset($_SESSION['user_id'])) {
                         echo '<span class="pull-right top title1" style="margin-left:40px;">'
                         . '<span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span>'
                         . ' <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
-                        . '<a href="javascript:deconnexion()" style="color:lightyellow">'
+                        . '<a href="../home.php" style="color:lightyellow">'
                         . '<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
                     }
                     $result = mysqli_query($mysqli, "SELECT * FROM users WHERE username='$username'") or die('Error');
@@ -168,7 +185,6 @@ if (!isset($_SESSION['user_id'])) {
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../collector_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">   Collectors<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../contributor_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">  Contributors<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('admin_dashboard'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">Assign  Collector<span class="sr-only">(current)</span></span></a><br><br><br>
-
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>"><span class="fa fa-book" style="color:white; font-size: 15px;">  Report<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../notification'); ?>"><span class="fa fa-book" style="color:white; font-size: 15px;">  Notification<span class="sr-only">(current)</span></span></a><br><br><br>
                     </div>

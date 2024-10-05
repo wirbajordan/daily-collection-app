@@ -1,6 +1,23 @@
 <h2 class="text-center"><span class="nam">Contributors</span></h2>
 
+<?php
+// Check user role
+if ($_SESSION['role'] != 'administrator') {
+    header('Location: .../login.php');//redirect to logged in if role not valide
+    exit();
+}
+
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: .../login.php'); // Redirect to login if not logged in
+    exit();
+}    
+
+ ?>
+
 <?php $result = mysqli_query($mysqli, "SELECT * from users where role='contributor'") or die('Error'); ?>
+
 
 <div class="panel"><table class="table table-striped title1"  style="vertical-align:middle">
         <tr><td style="vertical-align:middle"><b>S.N.</b></td>

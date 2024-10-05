@@ -9,14 +9,14 @@ $errorMessage = '';
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php');//redirect to logged in if role not valide
+    header('Location: login.php');//redirect to logged in if role not valide
     exit();
 }
 
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php'); // Redirect to login if not logged in
+    header('Location: login.php'); // Redirect to login if not logged in
     exit();
 }      
 
@@ -78,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch notifications
 $notifications = $mysqli->query("SELECT * FROM notification ORDER BY created_at DESC");
 ?>
-
-<form method="POST">
+ 
+<form method="POST">  
     <textarea name="message" required placeholder="Enter your notification message"></textarea>
   <button type="submit" name="send_notification">Send Notification</button>
 </form>

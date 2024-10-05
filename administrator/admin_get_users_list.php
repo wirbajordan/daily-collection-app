@@ -1,6 +1,5 @@
 <?php
 
-
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
     header('Location: .../login.php');//redirect to logged in if role not valide

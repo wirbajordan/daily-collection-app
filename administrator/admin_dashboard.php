@@ -36,15 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($exists > 0) {
             // Fetch all contributors and collectors
-            $stmt = $mysqli->prepare("SELECT user_id FROM users WHERE role IN ('contributor', 'collector')");
+            $stmt = $mysqli->prepare("SELECT user_id, username FROM users WHERE role IN ('contributor', 'collector')");
             $stmt->execute();
             $result = $stmt->get_result();
 
             // Insert notification for each user
             while ($row = $result->fetch_assoc()) {
                 $recipient_user_id = $row['user_id'];
-                $notificationStmt = $mysqli->prepare("INSERT INTO notification (user_id, message) VALUES (?, ?)");
-                $notificationStmt->bind_param('is', $recipient_user_id, $message);
+                $notificationStmt = $mysqli->prepare("INSERT INTO notification (user_id, username, message) VALUES (?, ?, ?)");
+                $notificationStmt->bind_param('iis', $recipient_user_id, $message);
                 $notificationStmt->execute();
                 $notificationStmt->close();
             }
@@ -122,72 +122,7 @@ $notifications = $mysqli->query("SELECT * FROM notification ORDER BY created_at 
 
     <style>
 /* css for generate report*/
-form {
-    margin: 20px 0;
-}
 
-label {
-    margin-right: 10px;
-}
-
-select, button {
-    padding: 10px;
-    margin: 5px;
-}
-
-  .tit{
-  margin-left: 40px;
-}
-.title{
-    font-family:'typo';
-}
-.title1{
-    font: 12px "Century Gothic", "Times Roman", sans-serif;
-}
-.header{
-    background:#495057;
-    height:111px;
-}
-.logo{
-    color: white;
-}
-.panel{
-    border-color:#eee;
-    margin:20px;
-    padding:20px;
-    font: 15px "Century Gothic", "Times Roman", sans-serif;
-}
-.body{
-    background-color: pink;
-}
-
-.fm{
-    position: absolute;
-    margin-left: 40%;
-    margin-top: -1.5%;
-    height: 20px;
-    width: 250px;
-}
-
-.well{
-    background-color: green;
-}
-
-.form-control:focus {
-    z-index: 10;
-    border-color: #4cae4c;
-}
-
-.btns{
-    background-color: #7a43b6;
-}
-
-.txt{
-    color: white;
-}
-.fa.active{
-    background: #fff;
-}
     </style>
    
 </head>
@@ -249,7 +184,7 @@ select, button {
     <?php endwhile; ?>     
 </ul>
 
-<div class="carousel-item" style="background-image: url(../assets/img/hero-carousel/coins.jpg)"></div>
+
 </div>
 
 </body>

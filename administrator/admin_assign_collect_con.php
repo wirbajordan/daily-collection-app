@@ -1,20 +1,6 @@
 <?php
-session_start();
+//session_start();
 include_once '../config/config.php';    
-
-
-// Check user role
-if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php' );
-    exit();
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php'); // Redirect to login if not logged in
-    exit();
-}    
-     
 
 // Logic to display success or error messages
 $error_message = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
@@ -22,6 +8,7 @@ $success_message = isset($_SESSION['success_message']) ? $_SESSION['success_mess
 
 unset($_SESSION['error_message']);
 unset($_SESSION['success_message']);
+
 
 // Fetch contributors and collectors from the database
 $contributors = [];
@@ -114,6 +101,7 @@ $mysqli->close();
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="">
+    <link  rel="stylesheet" href="admin_dashboard_css/styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;

@@ -15,7 +15,6 @@ if (!isset($_SESSION['user_id'])) {
 // Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
 
-
 $notifications = [];
 
 // Fetch notifications for the logged-in user
@@ -46,6 +45,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_notification']
     $deleteStmt->close();
 }
 
+// Handle notification reply
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_notification'])) {
+    $reply_message = trim($_POST['reply_message']);
+    $notification_id = intval($_POST['notification_id']);
+    
+    if (!empty($reply_message)) {
+        // Prepare and execute insert statement for reply
+        $insertStmt = $mysqli->prepare("INSERT INTO replies (notification_id, user_id, message) VALUES (?, ?, ?)");
+        $insertStmt->bind_param('iis', $notification_id, $user_id, $reply_message);
+        
+        if ($insertStmt->execute()) {
+            // Get the original notification's user ID to notify them
+            $userStmt = $mysqli->prepare("SELECT user_id FROM notification WHERE notification_id = ?");
+            $userStmt->bind_param('i', $notification_id);
+            $userStmt->execute();
+            $userStmt->bind_result($recipient_id);
+            $userStmt->fetch();
+            $userStmt->close();
+
+            // Insert a new notification for the recipient
+            $notifyStmt = $mysqli->prepare("INSERT INTO notification (user_id, message) VALUES (?, ?)");
+            $notify_message = "Reply from collector: " . $reply_message;
+            $notifyStmt->bind_param('is', $recipient_id, $notify_message);
+            $notifyStmt->execute();
+            $notifyStmt->close();
+
+            $successMessage = 'Reply sent successfully!';
+        } else {
+            $errorMessage = 'Failed to send reply.';
+        }
+        
+        $insertStmt->close();
+    }
+}
+
 $mysqli->close();
 ?>
 
@@ -64,6 +98,7 @@ $mysqli->close();
         }
         .container {
             max-width: 1000px;
+            height: auto;
             margin: auto;
             background: white;
             padding: 20px;
@@ -74,18 +109,30 @@ $mysqli->close();
             background-color: #e7f3fe;
             border-left: 6px solid #2196F3;
             margin: 10px 0;
-            padding: 10px;
+            padding: 20px;
             position: relative;
+            font-size: 18px;
         }
-        .delete-button {
+        .delete-button, .reply-button {
             position: absolute;
             top: 10px;
-            right: 10px;
             background: red;
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
+        }
+        .reply-button {
+            right: 80px;
+            background: green;
+        }
+        .reply-form {
+            margin-top: 10px;
+            display: none;
+        }
+        .reply-input {
+            width: calc(100% - 120px);
+            padding: 5px;
         }
         .notification-button {
             position: relative;
@@ -108,6 +155,11 @@ $mysqli->close();
             if (!confirm("Are you sure you want to delete this notification?")) {
                 event.preventDefault(); // Prevent form submission if the user cancels
             }
+        }
+
+        function toggleReplyForm(notificationId) {
+            const form = document.getElementById('reply-form-' + notificationId);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
     </script>
 </head>
@@ -135,6 +187,14 @@ $mysqli->close();
                         <input type="hidden" name="notification_id" value="<?php echo $notification['id']; ?>">
                         <button type="submit" name="delete_notification" class="delete-button">Delete</button>
                     </form>
+                    <button class="reply-button" onclick="toggleReplyForm(<?php echo $notification['id']; ?>)">Reply</button>
+                    
+                    <form id="reply-form-<?php echo $notification['id']; ?>" class="reply-form" method="POST">
+                        <input type="hidden" name="notification_id" value="<?php echo $notification['id']; ?>">
+                        <input type="text" name="reply_message" class="reply-input" placeholder="Type your reply..." required>
+                        
+                        <button type="submit" name="reply_notification" class="reply-button">Send</button>
+                    </form>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -142,15 +202,12 @@ $mysqli->close();
         <p>No new notifications.</p>
     <?php endif; ?>
 
-    <!-- Register contribution button -->
-    <a href="collector_register_contribution.php">
-        <button class="button">Register Contribution</button>
-    </a>
-
-    <a href="collector_view_registered_contribution.php">
-        <button class="button">View Registered Contribution</button>
-    </a>
-
+    <!-- Display success or error message -->
+    <?php if (isset($successMessage)): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($successMessage); ?></div>
+    <?php elseif (isset($errorMessage)): ?>
+        <div class="alert alert-error"><?php echo htmlspecialchars($errorMessage); ?></div>
+    <?php endif; ?>
 </div>
 </body>
 </html>

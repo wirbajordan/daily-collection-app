@@ -19,6 +19,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }    
 
+
+ 
+ // Assuming user ID is stored in session after login
+$user_id = $_SESSION['user_id'];
+
 ?>
 
 

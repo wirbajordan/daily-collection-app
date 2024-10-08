@@ -22,7 +22,7 @@ if (!isset($_SESSION['user_id'])) {
 <div class="panel"><table class="table table-striped title1"  style="vertical-align:middle">
         <tr><td style="vertical-align:middle"><b>S.N.</b></td>
              <td style="vertical-align:middle"><b>username</b></td>
-            <td style="vertical-align:middle"><b>email</b></td>
+             <td style="vertical-align:middle"><b>email</b></td>
             <td style="vertical-align:middle"><b>phone_number</b></td>
          <td style="vertical-align:middle" colspan="2"><b>Action</b></td>                                    
         </tr>
@@ -42,7 +42,7 @@ if (!isset($_SESSION['user_id'])) {
                 <td style="vertical-align:middle"><?php echo'' . $email . '' ?></td>
                 <td style="vertical-align:middle"><?php echo'' . $phone_number . '' ?></td>
                 <td><a href="admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubsettings/course/editCourse/courseedit'); ?> <?php echo '&course_id=' . $course_id .  '&course_name=' . $name . '&course_price=' . $price . '&number_of_quiz=' . $quiz_num . ' " class="glyphicon glyphicon-edit" style="font-size:18px;padding:5px; color:#0d6efd;"></a></td>' ?>
-                <td><a href='admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubsettings/course/courseAjax'); ?>&course_name=<?php echo ''.$name.'' ?>' onclick="return(confirm('Are you sure to delete this course ?'));" class="glyphicon glyphicon-trash" style="font-size:18px;padding:5px; color:red; "></a></td>
+                <td><a href='admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubsettings/course/courseAjax'); ?>&course_name=<?php echo ''.$name.'' ?>' onclick="return(confirm('Are you sure to delete this contributor ?'));" class="glyphicon glyphicon-trash" style="font-size:18px;padding:5px; color:red; "></a></td>
             </tr>
             <?php
         }

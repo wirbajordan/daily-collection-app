@@ -1,21 +1,5 @@
 <?php
-//session_start();
-include_once '../config/config.php';
-
-// Check user role
-if ($_SESSION['role'] != 'collector') {
-    header('Location: .../login.php');
-    exit();
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php'); // Redirect to login if not logged in
-    exit();
-}
-
-$user_id = $_SESSION['user_id'];
-
+// Database connection
 $host = 'localhost';
 $user = 'root';
 $password = '';
@@ -23,32 +7,40 @@ $dbname = 'dailycollect';
 
 $conn = new mysqli($host, $user, $password, $dbname);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+  
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redirect to login if not logged in
+    exit();
+}    
+ // Assuming user ID is stored in session after login
+$collector_id = $_SESSION['user_id'];
+
+// Hardcoded collector ID for demonstration purposes
+//$collector_id = ; // Replace with actual collector ID from session or other authentication method
+
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $collector_id = $_SESSION['user_id'];
+    $contributor_username = $_POST['contributor_username'];
     $amount = $_POST['amount'];
-    $password = $_POST['password'];
 
-    // Validate collector's password
-    $result = $conn->query("SELECT password, username FROM users WHERE user_id = '$collector_id'");
-    $row = $result->fetch_assoc();
-
-    if ($row && password_verify($password, $row['password'])) {
-        // Get collector's username
-        $collector_username = $row['username'];
-
-        // Insert transaction
-        $date = date('Y-m-d H:i:s');
-        $conn->query("INSERT INTO transaction (amount, date, user_id, username, transaction_type, register_contribution) VALUES ('$amount', '$date', '$collector_id', '$collector_username', 'register', 'Yes')");
-
-        echo json_encode(['status' => 'success', 'message' => 'Transaction registered successfully!']);
+    // Record transaction
+    $date = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("INSERT INTO transaction (amount, Date, user_id, username, transaction_type) VALUES (?, ?, ?, ?, 'register')");
+    $stmt->bind_param("dsis", $amount, $date, $collector_id, $contributor_username);
+    
+    if ($stmt->execute()) {
+        echo '<script>alert("Transaction successful.");</script>';
+        // Notify contributor (this is a placeholder for actual notification logic)
+        echo '<script>console.log("Notification sent to ' . $contributor_username . '");</script>';
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid password!']);
+        echo '<script>alert("Transaction failed.");</script>';
     }
-    exit(); // Ensure to exit after processing the request
 }
 ?>
 
@@ -57,43 +49,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collector Dashboard</title>
+    <title>Register Contribution</title>
     <style>
-        /* Global Styles */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            color: #333;
+            background-color: #f4f4f4;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #4CAF50;
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        /* Button Styles */
         button {
-            background-color: #4CAF50;
-            border: none;
+            padding: 10px;
+            background-color: #28a745;
             color: white;
-            padding: 12px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
         }
-
         button:hover {
-            background-color: #45a049;
+            background-color: #218838;
         }
-
         /* Modal Styles */
         .modal {
             display: none;
@@ -104,146 +86,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
         }
-
         .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
+            background-color: #fefefe;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 40%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
-
         .close:hover,
         .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
         }
-
-        /* Form Styles */
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="number"],
-        input[type="password"],
-        select {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        input[type="number"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            border-color: #4CAF50;
-            outline: none;
-            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-        }
-
-        /* Message Styles */
-        #message {
-            margin-top: 15px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .error {
-            color: red;
-        }
     </style>
 </head>
 <body>
-    <h1>Register Contribution</h1>
-    <button id="transactionBtn">Transactions</button>
-
-    <div id="transactionModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Add Transaction</h2>
-            <form id="transactionForm" method="POST">
-                <label for="contributor">Choose Contributor:</label>
-                <select name="contributor_id" required>
-                    <?php
-                    $result = $conn->query("SELECT user_id, username FROM users");
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<option value='{$row['user_id']}'>{$row['username']}</option>";
-                    }
-                    ?>
-                </select>
-
-                <label for="amount">Amount:</label>
-                <input type="number" name="amount" required>
-
-                <label for="password">Your Password:</label>
-                <input type="password" name="password" required>
-
-                <button type="submit">Validate Transaction</button>
-            </form>
-            <div id="message">
-                <button id="clearMessage" style="display:none;">Clear Message</button>
+    <div class="container">
+        <h2>Register Contribution</h2>
+        <button onclick="document.getElementById('transactionModal').style.display='block'">Add Transaction</button>
+        
+        <!-- Modal for Transaction -->
+        <div id="transactionModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('transactionModal').style.display='none'">&times;</span>
+                <h2>Transaction Details</h2>
+                <form method="POST" id="transactionForm">
+                    <input type="hidden" name="collector_id" value="<?php echo $collector_id; ?>"> <!-- Hidden collector ID -->
+                    <select name="contributor_username" required>
+                        <?php
+                        // Fetch contributors from the database
+                        $contributors = $conn->query("SELECT username FROM users WHERE role='contributor'");
+                        while ($row = $contributors->fetch_assoc()) {
+                            echo '<option value="' . $row['username'] . '">' . $row['username'] . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <input type="number" name="amount" placeholder="Amount" required>
+                    <button type="submit">Validate Transaction</button>
+                </form>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('transactionBtn').onclick = function() {
-            document.getElementById('transactionModal').style.display = 'block';
-        }
-
-        document.querySelector('.close').onclick = function() {
-            document.getElementById('transactionModal').style.display = 'none';
-        }
-
-        document.getElementById('transactionForm').onsubmit = function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-
-            fetch('collector_register_contribution.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messageDiv = document.getElementById('message');
-                const clearMessageButton = document.getElementById('clearMessage');
-                messageDiv.innerText = data.message;
-                messageDiv.style.color = data.status === 'success' ? 'green' : 'red';
-                clearMessageButton.style.display = 'inline'; // Show button
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-
-        document.getElementById('clearMessage').onclick = function() {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerText = '';
-            this.style.display = 'none'; // Hide button
+        // Close the modal when the user clicks outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('transactionModal');
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
         }
     </script>
 </body>
-</html>     
+</html>
+
+<?php
+$conn->close();
+?>

@@ -54,13 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_notification']
     $deleteStmt->close();
 }
 
+
 $mysqli->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> 
     <title>Welcome To Dashboard DailyCollect</title>
     <link rel="stylesheet" href="contributor_dashboard_css/style.css">
     <style>
@@ -75,11 +76,13 @@ body {
 
 .container {
     max-width: 500px;
+    height: 500px;
     margin: auto;
     background: white;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 15px;
 }
 .notification {
     background-color: #e7f3fe;

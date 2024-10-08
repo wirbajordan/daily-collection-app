@@ -15,6 +15,16 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }    
+ // Assuming user ID is stored in session after login
+$user_id = $_SESSION['user_id'];
+
+// Assuming you have the user's ID stored in a session variable after login
+//session_start();
+//$user_id = $_SESSION['user_id']; // Replace with actual session variable
+  
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -70,11 +80,18 @@ if (!isset($_SESSION['user_id'])) {
             }
             .header{
                 background:#495057;
-                height:110px;
+                height:200px;
             }
             .logo{
                 color: white;
+                font-size: 20px;
             }
+             
+            .dailycollect {
+               width: 11%;
+               height: 11%;
+            }
+
             .panel{
                 border-color:#eee;
                 margin:40px;
@@ -216,14 +233,15 @@ if (!isset($_SESSION['user_id'])) {
     </head>
     <body style="color:black; background-color: #eee;">
 
-        <div class="header" style="background-color: black">
+        <div class="header" style="background-color: ">
             <div class="container-fluid">
                 <div class="col-lg-12">
                     <span class="logo"><span style="margin-left:6%;">Daily Collect</span></span>
                     <?php
+    
                     if ((!($_SESSION ["password"]))) {
                         session_destroy();
-                        header("location:login.php");
+                        header("location: .../login.php");
                     } else {
                         $email = $_SESSION['email'];
                         $username = $_SESSION['username'];
@@ -243,14 +261,16 @@ if (!isset($_SESSION['user_id'])) {
 
                 </div>
                 <!-- navbar -->
-                <nav id="navbar" class="navbar">
-                    <img src="../assets/img/dailycollect.png"  width="65" height="65" alt="DC Daily Collection" style="margin-left:-13%;"> 
+                <nav id="navbar" class="navbar" >
+                    <img src="../assets/img/dailycollect.png" class="dailycollect" width="65" height="65" alt="DC Daily Collection" style="margin-left:-12%;"> 
                     <ul>                        
                         <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="collector.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_register_contribution'); ?>" style="color: white;">Register Contribution<span class="sr-only">(current)</span></a></li>
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_dashboard'); ?>" style="color: white;">consult notifications<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_view_registered_contribution'); ?>&branch=<?php echo'' . $branch . ''?>" style="color: white;">View_registered_contribution    <span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2" style="color: white;">show Qrcode<span class="sr-only">(current)</span></a></li>                         
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_view_registered_contribution'); ?>" style="color: white;">view registered contribution<span class="sr-only">(current)</span></a></li>
+                        
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>> <a href="collector.php?q=2 & page=<?php echo base64_encode(''); ?>&branch=<?php echo'' . $branch . ''?>" style="color: white;"> <span class="sr-only">(current)</span></a></li>
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>> <a href="collector.php?q=2" style="color: white;">  <span class="sr-only">(current)</span> </a></li>                         
                     </ul>
                 </nav>
 

@@ -5,7 +5,7 @@ include_once '../config/config.php';
 
 // Initialize variables messages
 $successMessage = '';
-$errorMessage = '';
+$errorMessage = '';  
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
@@ -78,8 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch notifications
 $notifications = $mysqli->query("SELECT * FROM notification ORDER BY created_at DESC");
 ?>
- 
+   
 <form method="POST">  
+   
     <textarea name="message" required placeholder="Enter your notification message"></textarea>
   <button type="submit" name="send_notification">Send Notification</button>
 </form>

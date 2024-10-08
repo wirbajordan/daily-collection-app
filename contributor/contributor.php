@@ -47,17 +47,24 @@ if (!isset($_SESSION['user_id'])) {
             href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
             rel="stylesheet">
 
-        <!-- Vendor CSS Files -->
+         <!-- Vendor CSS Files -->
         <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
         <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
         <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
         <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-        <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+        <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">      
 
+        
         <!-- Template Main CSS File -->
         <link href="../assets/css/main.css" rel="stylesheet">
         <link rel="stylesheet" href="contributor_dashboard_css/style.css">
+
+         
+
+
+                <!-- Template Main CSS File -->
+       <link href="../assets/css/main.css" rel="stylesheet">
 
 
         <style>
@@ -73,10 +80,11 @@ if (!isset($_SESSION['user_id'])) {
             }
             .header{
                 background:#495057;
-                height:110px;
+                height:202px;
             }
             .logo{
                 color: white;
+                font-size:25px;
             }
             .panel{
                 border-color:#eee;
@@ -99,15 +107,26 @@ if (!isset($_SESSION['user_id'])) {
                 padding: 6px 13px;
             }  
 
+            .dailycollect {
+                width: 10%;
+                height: 10%;
+            }
+
+            .coins {
+              
+            }
+
         </style>
 
 
     </head>
     
     <body style="color:black; background-color: #eee;">
-   
+    
+    <img src="../assets/img/hero-carousel/  .jpg" clas="coins"> 
+                   
 
-        <div class="header" style="background-color: black">
+        <div class="header" style="background-color: red">
             <div class="container-fluid">
                 <div class="col-lg-12">
                     <span class="logo"><span style="margin-left:6%;">Daily Collect</span></span>
@@ -137,13 +156,16 @@ l
                 </div>
                 <!-- navbar -->
                 <nav id="navbar" class="navbar">
-                    <img src="../assets/img/dailycollect.png"  width="70" height="70" alt="Daily Collection" style="margin-left:-13%;"> 
+                    <img src="../assets/img/dailycollect.png" class="dailycollect" width="65" height="65" alt="Daily Collection" style="margin-left:-13%;"> 
                     <ul>                        
                         <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="contributor.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_deposite'); ?>" style="color: white;">Deposit Contribution<span class="sr-only">(current)</span></a></li>
+                        
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_dashboard'); ?>" style="color: white;">Consult notifications<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode(''); ?>&branch=<?php echo'' . $branch . '' ?>&uid=<?php echo'' . $user_id . '' ?>" style="color: white;">Call customer support<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2" style="color: white;">Scan Qrcode<span class="sr-only">(current)</span></a></li>                         
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('call_customer_support'); ?>" style="color: white;">Call customer support<span class="sr-only">(current)</span></a></li>
+                        
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode(''); ?>&branch=<?php echo'' . $branch . '' ?>&uid=<?php echo'' . $user_id . '' ?>" style="color: white;">   <span class="sr-only">(current)</span></a></li>
+                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2" style="color: white;"><span class="sr-only">(current)</span></a></li>                         
                     </ul>
                 </nav>
 

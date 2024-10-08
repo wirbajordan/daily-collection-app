@@ -1,21 +1,5 @@
 <?php
-//session_start();
-include_once '../config/config.php';
-
-// Check user role    
-if ($_SESSION['role'] != 'collector') {
-    header('Location: .../login.php');
-    exit();
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
-    exit();
- }
-
-$user_id = $_SESSION['user_id'];
-
+// Database connection
 $host = 'localhost';
 $user = 'root';
 $password = '';
@@ -23,47 +7,54 @@ $dbname = 'dailycollect';
 
 $conn = new mysqli($host, $user, $password, $dbname);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle transaction registration
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['amount'])) {
-    $collector_id = $_SESSION['user_id'];
-    $amount = $_POST['amount'];
-    $password = $_POST['password'];
+// Hardcoded collector ID for demonstration purposes
+$collector_id = 1; // Replace with actual collector ID from session or other authentication method
 
-    // Validate collector's password
-    $result = $conn->query("SELECT password, username FROM users WHERE user_id = '$collector_id'");
-    $row = $result->fetch_assoc();
-
-    if ($row && password_verify($password, $row['password'])) {
-        $collector_username = $row['username'];
-        $date = date('Y-m-d H:i:s');
-        $conn->query("INSERT INTO transaction (amount, date, user_id, username, transaction_type, register_contribution) VALUES ('$amount', '$date', '$collector_id', '$collector_username', 'register', 'Yes')");
-        echo json_encode(['status' => 'success', 'message' => 'Transaction registered successfully!']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid password!']);
-    }
+ 
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
+}    
+ // Assuming user ID is stored in session after login
+$user_id = $_SESSION['user_id'];
+
+
+
+// Handle form submission for transaction registration
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'register') {
+    $contributor_username = $_POST['username'];
+    $amount = $_POST['amount'];
+
+    // Record transaction
+    $date = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("INSERT INTO transaction (amount, date, user_id, username, transaction_type) VALUES (?, ?, ?, ?, 'register')");
+    $stmt->bind_param("dsis", $amount, $date, $collector_id, $contributor_username);
+    
+    if ($stmt->execute()) {
+        echo '<script>alert("Transaction successful.");</script>';
+        // Notify contributor (this is a placeholder for actual notification logic)
+        echo '<script>console.log("Notification sent to ' . $contributor_username . '");</script>';
+    } else {
+        echo '<script>alert("Transaction failed.");</script>';
+    }
 }
 
-// Handle fetching contributions
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])) {
-    $stmt = $conn->prepare("SELECT user_id, username, amount, date, register_contribution FROM transaction WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $contributions = [];
-    while ($row = $result->fetch_assoc()) {
-        $contributions[] = $row;
-    }
-
-    echo json_encode($contributions);
-    $stmt->close();
-    $conn->close();
-    exit();
+// Fetch transactions for the collector
+$transactions = [];
+$total_amount = 0;
+$query = $conn->prepare("SELECT transaction_id, username, Date, amount, transaction_type FROM transaction WHERE user_id = ?");
+$query->bind_param("i", $user_id);
+$query->execute();
+$result = $query->get_result();
+while ($row = $result->fetch_assoc()) {
+    $transactions[] = $row;
+    $total_amount += $row['amount'];
 }
 ?>
 
@@ -72,33 +63,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collector Dashboard</title>
+    <title>Register Contribution</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            color: #333;
+            background-color: #f4f4f4;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #4CAF50;
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         button {
-            background-color: #4CAF50;
-            border: none;
+            padding: 10px;
+            background-color: #28a745;
             color: white;
-            padding: 12px 20px;
-            font-size: 16px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            margin: 5px 0;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #218838;
         }
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -108,16 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
         }
         .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
+            background-color: #fefefe;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .close {
             color: #aaa;
@@ -125,7 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])
             font-size: 28px;
             font-weight: bold;
         }
-        .close:hover {
+        .close:hover,
+        .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
@@ -133,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         th, td {
             border: 1px solid #ddd;
@@ -141,81 +135,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fetch_contributions'])
             text-align: left;
         }
         th {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>Register Contribution</h1>
-    <button id="contributionBtn">View Registered Contributions</button>
+    <div class="container">
+        <h2>View Register Contribution</h2>
+        <!--<button onclick="document.getElementById('transactionModal').style.display='block'">Add Transaction</button>-->
+        <button onclick="document.getElementById('transactionTable').style.display='block'">View Transactions</button>
+        
+        <!-- Modal for Transaction -->
+        <div id="transactionModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('transactionModal').style.display='none'">&times;</span>
+                <h2>Transaction Details</h2>
+                <form method="POST" id="transactionForm">
+                    <input type="hidden" name="collector_id" value="<?php echo $collector_id; ?>"> <!-- Hidden collector ID -->
+                    <select name="contributor_username" required>
+                        <?php
+                        // Fetch contributors from the database
+                        $contributors = $conn->query("SELECT username FROM users WHERE role='contributor'");
+                        while ($row = $contributors->fetch_assoc()) {
+                            echo '<option value="' . $row['username'] . '">' . $row['username'] . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <input type="number" name="amount" placeholder="Amount" required>
+                    <input type="hidden" name="action" value="register">
+                    <button type="submit">Validate Transaction</button>
+                </form>
+            </div>
+        </div>
 
-    <div id="contributionModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Your Registered Contributions</h2>
-            <table id="contributionTable">
-                <thead>
-                    <tr>
-                        <th>User ID</th>
-                        <th>Username</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Registered Contribution</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Contribution data will be populated here -->
-                </tbody>
+        <!-- Table to View Transactions -->
+        <div id="transactionTable" style="display:none;">
+            <h2>Transaction List</h2>
+            <table>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Contributor Name</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Transaction Type</th>
+                </tr>
+                <?php foreach ($transactions as $transaction): ?>
+                <tr>
+                    <td><?php echo $transaction['transaction_id']; ?></td>
+                    <td><?php echo $transaction['username']; ?></td>
+                    <td><?php echo $transaction['Date']; ?></td>
+                    <td><?php echo $transaction['amount']; ?></td>
+                    <td><?php echo $transaction['transaction_type']; ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <tr>
+                    <td colspan="3"><strong>Total</strong></td>
+                    <td><strong><?php echo number_format($total_amount, 2); ?></strong></td>
+                    <td></td>
+                </tr>
             </table>
+            <button onclick="document.getElementById('transactionTable').style.display='none'">Close</button>
         </div>
     </div>
 
     <script>
-        document.getElementById('contributionBtn').onclick = function() {
-            const modal = document.getElementById('contributionModal');
-            modal.style.display = 'block';
-
-            // Fetch registered contributions for the logged-in collector
-            fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({ fetch_contributions: true })     
-            })
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.querySelector('#contributionTable tbody');
-                tableBody.innerHTML = ''; // Clear existing rows
-
-                data.forEach(contribution => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${contribution.user_id}</td>
-                        <td>${contribution.username}</td>
-                        <td>${contribution.amount}</td>
-                        <td>${contribution.date}</td>
-                        <td>${contribution.register_contribution}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            })
-            .catch(error => console.error('Error fetching contributions:', error));
-        }
-
-        // Close modal functionality
-        document.querySelector('.close').onclick = function() {
-            document.getElementById('contributionModal').style.display = 'none';
-        }
-        
-        // Close modal when clicking outside of modal content
+        // Close the modal when the user clicks outside of it
         window.onclick = function(event) {
-            const modal = document.getElementById('contributionModal');
+            const modal = document.getElementById('transactionModal');
             if (event.target === modal) {
-                modal.style.display = 'none';
+                modal.style.display = "none";
             }
         }
     </script>
 </body>
 </html>
+
+<?php
+$conn->close();
+?>

@@ -95,8 +95,8 @@ if (isset($_POST ["ok"])) {
             .fm{
 
                 position: absolute;
-                margin-left: 42%;
-                margin-top: -10%;
+                margin-left: 90%;
+                margin-top: -50%;
                 height: 50px;
                 width: 250px;
                 align-content: center;
@@ -126,9 +126,10 @@ if (isset($_POST ["ok"])) {
         <header id="header" class="header d-flex align-items-center">
             <div class="container-fluid container-xl d-flex align-items-center justify-content-between">   <!-- 1.d-flex: Aligns Ub att with nav bar /// 2.justify-content-between: Means keeping a space between the UB attestation and the nav bar  -->
 
-                <a href="index.html" class="logo d-flex align-items-center">
-                    <img src="assets/img/logo.png" alt="">
-                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
+                
+            <a href="index.html" class="logo d-flex align-items-center">
+                    <img src="images/vision-finance-logo.png" alt="Vision Finance Logo">
+                    <h1>VISION FINANCE<span style="color:blue">.</span></h1>
                 </a>
 
                 <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">          
 
     <head>
         <link rel="stylesheet" type="text/css" href="ubcss/bootstrap.css"> 
@@ -53,8 +53,8 @@
             <div class="container-fluid container-xl d-flex align-items-center justify-content-between">   <!-- 1.d-flex: Aligns Ub att with nav bar /// 2.justify-content-between: Means keeping a space between the UB attestation and the nav bar  -->
 
                 <a href="index.html" class="logo d-flex align-items-center">
-                    <img src="assets/img/dailycollect.png" alt="">
-                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
+                    <img src="images/vision-finance-logo.png" alt="Vision Finance Logo">
+                    <h1>VISION FINANCE<span style="color:blue">.</span></h1>
                 </a>
 
                 <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
@@ -80,8 +80,8 @@
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-6 text-center">
-                            <h2 data-aos="fade-down">Welcome to <span>DAILY COLLECT</span></h2>                                                                                                <!--data-aos="fade-up/down" is to make things display upwards or downwards-->
-                            <p data-aos="fade-up">DC (DAILY COLLECT) IS  AN  APPLICATION  PLATFORM  WHICH  HELPS  TO  FACILITATE  THE  TRANSACTION  PROCESS  BETWEEN  CONTRIBUTORS  AND  COLLECTORS  IN  A  SECURED  AND  EFFICIENT  WAY. </p>
+                            <h2 data-aos="fade-down">Welcome to <span>VISION FINANCE</span></h2>                                                                                                <!--data-aos="fade-up/down" is to make things display upwards or downwards-->
+                            <p data-aos="fade-up">VISION FINANCE IS  AN  APPLICATION  PLATFORM  WHICH  HELPS  TO  FACILITATE  THE  TRANSACTION  PROCESS  BETWEEN  CONTRIBUTORS  AND  COLLECTORS  IN  A  SECURED  AND  EFFICIENT  WAY. </p>
                             <a data-aos="fade-up" data-aos-delay="200" href="#get-started" class="btn btn-primary" style=" size: 200px; height: 30px; width: 100px; ">GET STARTED</a>
                         </div>
                     </div>
@@ -130,5 +130,4 @@
 
 
 </body>
-
 </html>

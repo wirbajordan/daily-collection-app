@@ -11,297 +11,101 @@ if ($_SESSION['role'] != 'collector') {
 
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) { 
     header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }    
  // Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
+$username = $_SESSION['username'];
 
-// Assuming you have the user's ID stored in a session variable after login
-//session_start();
-//$user_id = $_SESSION['user_id']; // Replace with actual session variable
-  
+// Fetch quick stats
+$conn = new mysqli('localhost', 'root', '', 'dailycollect');
+$totalContributions = 0;
+$totalContributors = 0;
+$recentActivity = [];
+$res = $conn->query("SELECT COUNT(*) as cnt, COALESCE(SUM(amount),0) as total FROM transaction WHERE user_id = $user_id");
+if ($row = $res->fetch_assoc()) {
+    $totalContributions = $row['total'];
+}
+$res = $conn->query("SELECT COUNT(DISTINCT username) as cnt FROM transaction WHERE user_id = $user_id");
+if ($row = $res->fetch_assoc()) {
+    $totalContributors = $row['cnt'];
+}
+$res = $conn->query("SELECT Date, username, amount, transaction_type FROM transaction WHERE user_id = $user_id ORDER BY Date DESC LIMIT 5");
+while ($row = $res->fetch_assoc()) {
+    $recentActivity[] = $row;
+}
 
-
-
+include 'header.php';
 ?>
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="../ubcss/bootstrap-3.0.0/dist/css/bootstrap.css">
-        <script src="../ubjs/script.js"></script>
-        <script src="../ubjs/jquery.js"></script>
-        <script src="../ubjs/jquery.js"></script>
-        <script src="../ubjs/ajaxWorks.js"></script>
-        <script src="../ubjs/bootstrap.min.js"></script>
-        <script src="../ubjs/holder.js"></script>
-        <meta charset="UTF-8">
-
-        <link rel="stylesheet" type="text/css" href="../ubcss/bootstrap.css"> 
-        <link rel="stylesheet" type="text/css" href="../ubcss/admin.css"> 
-        <meta charset="utf-8">
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <title>DC Daily Collection</title>
-
-        <!-- Favicons -->
-        <link href="../assets/img/favicon.png" rel="icon">
-        <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-            rel="stylesheet">
-
-        <!-- Vendor CSS Files -->
-        <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-        <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
-        <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
-        <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-        <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-        <!-- Template Main CSS File -->
-        <link href="../assets/css/main.css" rel="stylesheet">
-
-
-        <style>
-            .tit{
-                margin-left: 40px;
-            }
-            .title{
-                font-family:'typo';
-            }
-            .title1{
-                font: 12px "Century Gothic", "Times Roman", sans-serif;
-            }
-            .header{
-                background:#495057;
-                height:200px;
-            }
-            .logo{
-                color: white;
-                font-size: 20px;
-            }
-             
-            .dailycollect {
-               width: 11%;
-               height: 11%;
-            }
-
-            .panel{
-                border-color:#eee;
-                margin:40px;
-                padding:20px;
-                font: 15px "Century Gothic", "Times Roman", sans-serif;
-            }
-            .start{
-                display: inline-block;
-                color: #666;
-                background: #f4f4f4;
-                border: 1px dotted #ccc;
-                padding: 6px 13px;
-            }
-            .current{
-                display: inline-block;
-                color: #666;
-                background: #f4f4f4;
-                border: 1px dotted #ccc;
-                padding: 6px 13px;
-            }
-
-            body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #4CAF50;
-        }
-
-        /* Button Styles */
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        /* Form Styles */
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="number"],
-        input[type="password"],
-        select {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        input[type="number"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            border-color: #4CAF50;
-            outline: none;
-            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-        }
-
-        /* Message Styles */
-        #message {
-            margin-top: 15px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .error {
-            color: red;
-        }
-        </style>
-
-
-    </head>
-    <body style="color:black; background-color: #eee;">
-
-        <div class="header" style="background-color: ">
-            <div class="container-fluid">
-                <div class="col-lg-12">
-                    <span class="logo"><span style="margin-left:6%;">Daily Collect</span></span>
-                    <?php
-    
-                    if ((!($_SESSION ["password"]))) {
-                        session_destroy();
-                        header("location: .../login.php");
-                    } else {
-                        $email = $_SESSION['email'];
-                        $username = $_SESSION['username'];
-                        $password = $_SESSION['password'];
-
-                        include_once ('../config/config.php');
-                        echo '<span class="pull-right top title1" style="margin-left:40px;"><span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span> <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
-                        . '<a href="../home.php" style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
-                    }
-                    $result = mysqli_query($mysqli, "SELECT * FROM users WHERE username='$username'") or die('Error');
-                    ($row = mysqli_fetch_array($result));
-                    //$user_id = $row['user_id'];
-                    //$branch = $row['branch'];
-
-                  
-                    ?>
-
-                </div>
-                <!-- navbar -->
-                <nav id="navbar" class="navbar" >
-                    <img src="../assets/img/dailycollect.png" class="dailycollect" width="65" height="65" alt="DC Daily Collection" style="margin-left:-12%;"> 
-                    <ul>                        
-                        <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="collector.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_register_contribution'); ?>" style="color: white;">Register Contribution<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_dashboard'); ?>" style="color: white;">consult notifications<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="collector.php?q=2 & page=<?php echo base64_encode('collector_view_registered_contribution'); ?>" style="color: white;">view registered contribution<span class="sr-only">(current)</span></a></li>
-                        
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>> <a href="collector.php?q=2 & page=<?php echo base64_encode(''); ?>&branch=<?php echo'' . $branch . ''?>" style="color: white;"> <span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>> <a href="collector.php?q=2" style="color: white;">  <span class="sr-only">(current)</span> </a></li>                         
-                    </ul>
-                </nav>
-
-                <!--|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
-                <?php $user_id = ['user_id']; ?>
-                <div class="container">
-                    <div class="row">
-                        <div class=" col-md-12">
-
-                            <?php
-                            if (@$_GET['q'] == 2) {
-                                if (isset($_REQUEST ["page"])) {
-                                    $page = base64_decode($_REQUEST ["page"]) . ".php";
-                                    if (file_exists($page)) {
-                                        include ($page);
-                                    } else {
-                                        echo 'page dos not exist';
-                                    }
-                                } else {
-                                    include ('collector.php');
-                                }
-                            }
-                            ?>
-
-                        </div>
-                    </div>
-                </div>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="fw-bold" style="font-size:2.2rem; margin-top:2rem;">Welcome, <?php echo htmlspecialchars($username); ?>!</h2>
+        <p class="text-muted" style="font-size:1.1rem; font-weight:bold;">Here's your collector dashboard overview.</p>
+    </div>
+</div>
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Total Contributions</h5>
+                <p class="display-6 fw-bold text-primary"><?php echo number_format($totalContributions, 2); ?> CFA</p>
             </div>
         </div>
-    </body>
-</html>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Contributors Assigned</h5>
+                <p class="display-6 fw-bold text-success"><?php echo $totalContributors; ?></p>
+            </div>
+        </div>
+    </div>
+    <!-- Add more stat cards as needed -->
+</div>
+<!-- Register Contribution Form (hidden by default, shown when button is clicked) -->
+<div id="register-contribution-section" style="max-width: 480px; margin: 2rem auto; background: #fff; border-radius: 18px; box-shadow: 0 6px 24px rgba(37,99,235,0.08); padding: 2rem; display: none;">
+    <?php include 'register_contribution_form.php'; ?>
+</div>
+<!-- Recent Activity Table -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-primary text-white fw-bold">
+        Recent Contributions
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Contributor</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($recentActivity as $activity): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($activity['Date']); ?></td>
+                        <td><?php echo htmlspecialchars($activity['username']); ?></td>
+                        <td><?php echo htmlspecialchars($activity['amount']); ?></td>
+                        <td><?php echo htmlspecialchars($activity['transaction_type']); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+// Show/hide the form inline
+function showRegisterContributionForm() {
+    document.getElementById('register-contribution-section').style.display = 'block';
+    window.scrollTo({ top: document.getElementById('register-contribution-section').offsetTop - 60, behavior: 'smooth' });
+}
+</script>
+<?php
+include 'footer.php';
 
 
 

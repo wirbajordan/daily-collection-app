@@ -1,26 +1,21 @@
-
 <?php
-//session_start();
 include_once '../config/config.php';        
 
-
-// Check user role
-if ($_SESSION['role'] != 'contributor') {
-    header('Location: ../login.php' );
+// Check if user is logged in
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header('Location: ../login.php');
     exit();
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php'); // Redirect to login if not logged in
+// Check user role
+if ($_SESSION['role'] != 'contributor') {
+    header('Location: ../login.php');
     exit();
-}    
-     
-          
+}
+
 // Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
 
- 
 // Database connection parameters
 $servername = "localhost"; // Change if necessary
 $username = "root"; // Change to your DB username
@@ -62,6 +57,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
             // Set success message flag and session variable
             $successMessage = true;
             $_SESSION['transaction_success'] = true; // Set session variable
+
+            // Notify assigned collector
+            $collectorId = null;
+            $collectorStmt = $conn->prepare("SELECT collector_id FROM assignments WHERE contributor_id = ?");
+            $collectorStmt->bind_param("i", $userId);
+            $collectorStmt->execute();
+            $collectorStmt->bind_result($collectorId);
+            $collectorStmt->fetch();
+            $collectorStmt->close();
+            if (!$collectorId) {
+                $collectorId = 1; // Default collector if not assigned
+            }
+            $notificationMsg = "Contributor $userName has deposited $amount CFA.";
+            $notifyStmt = $conn->prepare("INSERT INTO notification (user_id, message) VALUES (?, ?)");
+            $notifyStmt->bind_param("is", $collectorId, $notificationMsg);
+            $notifyStmt->execute();
+            $notifyStmt->close();
         } else {
             echo "Error: " . $stmt->error;
         }
@@ -102,189 +114,255 @@ if (isset($_SESSION['transaction_success']) && $_SESSION['transaction_success'])
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="contributor_dashboard_css/style.css">
+    <title>Make Deposit - Vision Finance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Here is the CSS styles for deposite contribution form and it buttons */
+        :root {
+            --main: #2563eb;
+            --main-dark: #174ea6;
+            --accent: #e74c3c;
+            --background: #f4f6fa;
+            --card-bg: #fff;
+            --shadow: 0 6px 24px rgba(37,99,235,0.08);
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        h2 {
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 480px;
+            width: 100%;
+            margin: 2rem auto;
+        }
+        .dashboard-card .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--main-dark);
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        .balance-box {
+            background: linear-gradient(90deg, var(--main) 60%, var(--main-dark) 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 1.5rem 1.2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(37,99,235,0.10);
             text-align: center;
         }
-        .form-group {
-            margin-bottom: 15px;
+        .balance-box .balance-label {
+            font-size: 1rem;
+            opacity: 0.85;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
+        .balance-box .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 0.2rem;
         }
-        input[type="number"] {
-            width: 50%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .balance-box .currency {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-right: 0.2rem;
         }
-        button {
-            width: 30%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
+        .form-label {
+            font-weight: 500;
+            color: var(--main-dark);
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 0.85rem;
+            border: 1px solid #e3e6ed;
+            font-size: 1.05rem;
+        }
+        .form-control:focus {
+            border-color: var(--main);
+            box-shadow: 0 0 0 0.15rem rgba(37,99,235,0.10);
+        }
+        .currency-input {
+            position: relative;
+        }
+        .currency-input input {
+            padding-left: 3.2rem;
+        }
+        .currency-input .currency-symbol {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--main-dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        .btn-main {
+            background: linear-gradient(90deg, var(--main) 60%, var(--main-dark) 100%);
+            color: #fff;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 8px;
+            padding: 0.85rem 2.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+            transition: background 0.2s, box-shadow 0.2s;
         }
-        button:hover {
-            background-color: #218838;
+        .btn-main:hover, .btn-main:focus {
+            background: var(--main-dark);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(37,99,235,0.13);
         }
         .success-message {
-            display: <?php echo $successMessage ? 'block' : 'none'; ?>;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
+            background: #e6f9ed;
+            color: #1a7f4c;
+            border-left: 5px solid #1a7f4c;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .dismiss-button {
-            margin-top: 10px;
-            padding: 5px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: <?php echo $successMessage ? 'inline-block' : 'none'; ?>;
+        .success-message i {
+            margin-right: 0.7rem;
+            font-size: 1.3rem;
         }
-        .dismiss-button:hover {
-            background-color: #c82333;
+        .transactions-section {
+            margin-top: 2.5rem;
         }
-
-        /* here begins the css for the transaction table */
         .transactions-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .transactions-table th, .transactions-table td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f9fafc;
+            box-shadow: 0 1px 4px rgba(37,99,235,0.04);
         }
         .transactions-table th {
-            background-color: #f2f2f2;
-        }
-        .total-sum {
-            margin-top: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-        .view-transactions-button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+            background: var(--main-dark);
+            color: #fff;
+            font-weight: 500;
+            padding: 0.95rem 0.7rem;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: block;
-            width: 30%;
         }
-        .view-transactions-button:hover {
-            background-color: #0056b3;
+        .transactions-table td {
+            padding: 0.95rem 0.7rem;
+            border-bottom: 1px solid #e3e6ed;
+            font-size: 1.01rem;
+        }
+        .transactions-table tr:last-child td {
+            border-bottom: none;
+        }
+        .transactions-table tr:hover {
+            background: #f1f5fb;
+        }
+        .badge-success {
+            background: #1a7f4c !important;
+            color: #fff !important;
+            font-size: 0.98em;
+            padding: 0.45em 1em;
+            border-radius: 6px;
+        }
+        @media (max-width: 600px) {
+            .dashboard-card {
+                padding: 1.2rem 0.5rem;
+            }
+            .transactions-section {
+                margin-top: 1.2rem;
+            }
         }
     </style>
 </head>
-
 <body>
-
-<div class="container">
-    <h2>Deposit Contribution</h2>
-    <form id="depositForm" method="POST" action="">
-        <div class="form-group">
-            <label for="userName">User Name</label>
-            <input type="text" id="userName" name="username" value="<?php echo htmlspecialchars($userName); ?>" readonly>
+    <div class="main-container">
+        <div class="dashboard-card">
+            <div class="balance-box mb-4">
+                <div class="balance-label">Your Total Balance</div>
+                <div class="balance-amount">
+                    <span class="currency">CFA</span> <?php echo number_format($totalSum, 2); ?> 
+                </div>
+            </div>
+            <?php if ($successMessage): ?>
+                <div class="success-message" id="successMessage">
+                    <span><i class="fas fa-check-circle"></i> Your contribution has been recorded successfully!</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="dismissMessage()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            <?php endif; ?>
+            <div class="mb-4">
+                <div class="section-title"><i class="fas fa-plus-circle"></i> Make a New Contribution</div>
+                <form id="depositForm" method="POST" action="" style="margin-top: 2rem;">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">User Name</label>
+                        <input type="text" class="form-control" id="userName" name="username" value="<?php echo htmlspecialchars($userName); ?>" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Contribution Amount</label>
+                        <div class="currency-input">
+                            <span class="currency-symbol">CFA</span>
+                            <input type="number" class="form-control" id="amount" name="amount" required min="0" step="0.01" placeholder="Enter amount">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-main w-100 mt-2">
+                        <i class="fas fa-check"></i> Submit Contribution
+                    </button>
+                </form>
+            </div>
+            <div class="transactions-section">
+                <div class="section-title"><i class="fas fa-history"></i> Transaction History</div>
+                <div class="table-responsive">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($transactions as $transaction): ?>
+                                <tr>
+                                    <td><?php echo date('d M Y H:i', strtotime($transaction['date'])); ?></td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            <?php echo ucfirst(htmlspecialchars($transaction['transaction_type'])); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="currency">CFA</span> <?php echo number_format($transaction['amount'], 2); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="amount">Deposit Amount</label>
-            <input type="number" id="amount" name="amount" required min="0" step="0.01">
-        </div>
-        <button type="submit">Submit</button>
-
-        <button class="view-transactions-button" id="viewTransactionsButton">View My Transactions</button>
-    </form>
-    <div class="success-message" id="successMessage">
-        Your contribution has been recorded successfully!
-        <button class="dismiss-button" id="dismissButton">Dismiss</button>
     </div>
-
-    
-
-    <div id="transactionsContainer" style="display:none;">
-        <h3>Transaction History</h3>
-        <table class="transactions-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Username</th>
-                    <th>Transaction Type</th>
-                    <th>Deposit Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($transactions as $transaction): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($transaction['date']); ?></td>
-                        <td><?php echo htmlspecialchars($userName); ?></td>
-                        <td><?php echo htmlspecialchars($transaction['transaction_type']); ?></td>
-                        <td><?php echo htmlspecialchars($transaction['amount']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <div class="total-sum">Total Sum: <?php echo htmlspecialchars($totalSum); ?></div>
-    </div>
-</div>
-
-<script>
-    // Function to hide the success message after 5 seconds
-    window.onload = function() {
-        const successMessage = document.getElementById('successMessage');
-        const dismissButton = document.getElementById('dismissButton');
-        const transactionsContainer = document.getElementById('transactionsContainer');
-
-        if (successMessage.style.display === 'block') {
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000); // 5000 milliseconds = 5 seconds
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function dismissMessage() {
+            document.getElementById('successMessage').style.display = 'none';
         }
-
-        // Dismiss button functionality
-        dismissButton.onclick = function() {
-            successMessage.style.display = 'none';
-        };
-
-        // View Transactions button functionality
-        document.getElementById('viewTransactionsButton').onclick = function() {
-            if (transactionsContainer.style.display === 'none') {
-                transactionsContainer.style.display = 'block';
-            } else {
-                transactionsContainer.style.display = 'none';
+        document.getElementById('depositForm').addEventListener('submit', function(event) {
+            const amount = document.getElementById('amount').value;
+            if (amount <= 0) {
+                event.preventDefault();
+                alert('Please enter a valid amount greater than 0');
             }
-        };
-    };
-</script>
-
+        });
+    </script>
 </body>
 </html>

@@ -19,9 +19,32 @@ if (isset($_POST["ok"])) {
     $user_phone_number = trim($_POST['phone_number']);
     $user_password = trim($_POST['password']);
     $user_role = trim($_POST['role']);
+    $first_name = trim($_POST['first_name']);
+    $last_name = trim($_POST['last_name']);
+    $profile_image_path = 'default.png'; // Default image
+
+    // Handle file upload
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        $upload_dir = 'uploads/profile_images/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+        
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $file_type = $_FILES['profile_image']['type'];
+
+        if (in_array($file_type, $allowed_types)) {
+            $file_name = uniqid() . '-' . basename($_FILES['profile_image']['name']);
+            $target_file = $upload_dir . $file_name;
+
+            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_file)) {
+                $profile_image_path = $file_name;
+            }
+        }
+    }
 
     // Basic validation
-    if (empty($user_name) || empty($user_email) || empty($user_password)) {
+    if (empty($user_name) || empty($user_email) || empty($user_phone_number) || empty($user_password)) {
         $_SESSION['error_message'] = "All fields are required.";
         header('Location: register.php'); // Redirect back to the registration form
         exit();
@@ -31,11 +54,11 @@ if (isset($_POST["ok"])) {
        //$hashed_password = password_hash($user_password, PASSWORD_DEFAULT);
 
         // Prepare and execute the SQL statement
-        $stmt = $mysqli->prepare("INSERT INTO users (username, email, phone_number,  password, role) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $mysqli->prepare("INSERT INTO users (username, email, phone_number,  password, role, first_name, last_name, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         
         if ($stmt) {
             // Bind parameters
-            $stmt->bind_param("sssss", $user_name, $user_email, $user_phone_number,   $passwordhash, $user_role);
+            $stmt->bind_param("ssssssss", $user_name, $user_email, $user_phone_number,   $passwordhash, $user_role, $first_name, $last_name, $profile_image_path);
 
             // Execute and check for success
             if ($stmt->execute()) {
@@ -145,9 +168,9 @@ $mysqli->close();
         <header id="header" class="header d-flex align-items-center">
             <div class="container-fluid container-xl d-flex align-items-center justify-content-between">   <!-- 1.d-flex: Aligns Ub att with nav bar /// 2.justify-content-between: Means keeping a space between the UB attestation and the nav bar  -->
 
-                <a href="index.html" class="logo d-flex align-items-center">
-                    <img src="assets/img/logo.png" alt="">
-                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
+            <a href="index.html" class="logo d-flex align-items-center">
+                    <img src="images/vision-finance-logo.png" alt="Vision Finance Logo">
+                    <h1>VISION FINANCE<span style="color:blue">.</span></h1>
                 </a>
 
                 <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
@@ -170,8 +193,14 @@ $mysqli->close();
         <section id="hero" class="hero">
             <div class="info d-flex align-items-center">
 
-                <span class="fm"><form name="" method="POST" action="">
+                <span class="fm"><form name="" method="POST" action="" enctype="multipart/form-data">
                         <label class="txt" style=" margin-left: 35%;"><b>REGISTER</b></label><br>
+                        <label class="txt">First Name</label>
+                        <input type="text" required="" class="form-control" placeholder="Enter your first name" name="first_name" value="" autofocus="" ><br>
+                        <label class="txt">Last Name</label>
+                        <input type="text" required="" class="form-control" placeholder="Enter your last name" name="last_name" value="" autofocus="" ><br>
+                        <label class="txt">Profile Picture</label>
+                        <input type="file" class="form-control" name="profile_image" accept="image/*"><br>
                         <label class="txt">Username</label>
                         <input type="text" required="" class="form-control" placeholder="Enter your username" name="username" value="" autofocus="" ><br>
                         <label class="txt">Email</label>

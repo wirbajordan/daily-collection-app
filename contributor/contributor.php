@@ -82,9 +82,10 @@ if (!isset($_SESSION['user_id'])) {
                 background:#495057;
                 height:202px;
             }
+
             .logo{
                 color: white;
-                font-size:25px;
+                font-size: 30px;
             }
             .panel{
                 border-color:#eee;
@@ -122,14 +123,14 @@ if (!isset($_SESSION['user_id'])) {
     </head>
     
     <body style="color:black; background-color: #eee;">
-    
-    <img src="../assets/img/hero-carousel/  .jpg" clas="coins"> 
+
+    <img src="../images/vision-finance-logo.png" class="coins" alt="Vision Finance Logo" style="height: 65px; width: auto; margin-top: 10px;"> 
                    
 
-        <div class="header" style="background-color: red">
+        <div class="header" style="background-color: ">
             <div class="container-fluid">
                 <div class="col-lg-12">
-                    <span class="logo"><span style="margin-left:6%;">Daily Collect</span></span>
+                    <span class="logo"><span style="margin-left: ;">Vision Finance</span></span>
                     <?php
                     if ((!($_SESSION ["password"]))) {
                         session_destroy();
@@ -154,11 +155,12 @@ if (!isset($_SESSION['user_id'])) {
                     ?>
 l
                 </div>
+      
                 <!-- navbar -->
                 <nav id="navbar" class="navbar">
-                    <img src="../assets/img/dailycollect.png" class="dailycollect" width="65" height="65" alt="Daily Collection" style="margin-left:-13%;"> 
+                    <img src="../images/vision-finance-logo.png" class="dailycollect" width="65" height="65" alt="Vision Finance" style="margin-left:-13%;"> 
                     <ul>                        
-                        <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="contributor.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
+                        <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="contributor_dashboard.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_deposite'); ?>" style="color: white;">Deposit Contribution<span class="sr-only">(current)</span></a></li>
                         
                         <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_dashboard'); ?>" style="color: white;">Consult notifications<span class="sr-only">(current)</span></a></li>
@@ -195,6 +197,8 @@ l
                 </div>
             </div>
         </div>
+</div>
+
     </body>
 </html>
 

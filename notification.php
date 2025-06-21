@@ -8,18 +8,16 @@ $successMessage = '';
 $errorMessage = '';  
 
 // Check user role
-if ($_SESSION['role'] != 'administrator') {
-    header('Location: login.php');//redirect to logged in if role not valide
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 'administrator') {
+    header('Location: ../login.php'); //redirect to logged in if role not valid
     exit();
 }
 
-
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php'); // Redirect to login if not logged in
+    header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }      
-
 
 // Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
@@ -84,6 +82,13 @@ $notifications = $mysqli->query("SELECT * FROM notification ORDER BY created_at 
     <textarea name="message" required placeholder="Enter your notification message"></textarea>
   <button type="submit" name="send_notification">Send Notification</button>
 </form>
+
+<!-- Call Customer Support Button -->
+<div class="my-4 text-center">
+    <a href="/practicals/contributor/call_customer_support.php" class="btn btn-primary btn-lg">
+        <i class="fas fa-headset"></i> Call Customer Support
+    </a>
+</div>
 
 <div id="notification" class="notification" style="display: none;"></div>
 

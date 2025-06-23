@@ -93,13 +93,18 @@ if (isset($_POST ["ok"])) {
             }
 
             .fm{
-
                 position: absolute;
-                margin-left: 90%;
-                margin-top: -50%;
-                height: 50px;
-                width: 250px;
-                align-content: center;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 280px;
+                z-index: 10;
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 20px;
+                background: rgba(0,0,0,0.6);
+                border-radius: 10px;
+                text-align: center;
             }
 
 
@@ -128,8 +133,8 @@ if (isset($_POST ["ok"])) {
 
                 
             <a href="index.html" class="logo d-flex align-items-center">
-                    <img src="images/vision-finance-logo.png" alt="Vision Finance Logo">
-                    <h1>VISION FINANCE<span style="color:blue">.</span></h1>
+                    <img src="assets/img/dailycollect.png" alt="DailyCollect Logo">
+                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
                 </a>
 
                 <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
@@ -153,7 +158,7 @@ if (isset($_POST ["ok"])) {
             <div class="info d-flex align-items-center">
 
                 <span class="fm"><form name="" method="POST" action="">
-                        <label style=" margin-left: 40%; color: white;"><b>LOGIN</b></label><br><br>
+                        <label style="color: white;"><b>LOGIN</b></label><br><br>
                         <label class="bi bi-person-fill" style="color: white; height: 20px;"></label>
                         <input type="email" required="" class="form-control" placeholder="Enter your email" name="email" value="" autofocus=""><br>   
                         <label class="glyphicon-lock"></label>

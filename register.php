@@ -131,12 +131,25 @@ $mysqli->close();
                 background-color: pink;
             }
 
+            .hero {
+                height: 100vh;
+                min-height: 100vh;
+                position: relative;
+            }
+
             .fm{
                 position: absolute;
                 margin-left: 40%;
-                margin-top: -35%;
-                height: 20px;
-                width: 250px;
+                margin-top: 0;
+                width: 280px;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 10;
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 15px;
+                background: rgba(0,0,0,0.5);
+                border-radius: 10px;
             }
 
             .well{
@@ -156,8 +169,18 @@ $mysqli->close();
                 color: white;
             }
 
+            #hero-carousel {
+                height: 100vh;
+                min-height: 100vh;
+            }
 
-
+            .carousel-item {
+                height: 100vh;
+                min-height: 100vh;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
 
         </style>
     </head>
@@ -169,8 +192,8 @@ $mysqli->close();
             <div class="container-fluid container-xl d-flex align-items-center justify-content-between">   <!-- 1.d-flex: Aligns Ub att with nav bar /// 2.justify-content-between: Means keeping a space between the UB attestation and the nav bar  -->
 
             <a href="index.html" class="logo d-flex align-items-center">
-                    <img src="images/vision-finance-logo.png" alt="Vision Finance Logo">
-                    <h1>VISION FINANCE<span style="color:blue">.</span></h1>
+                    <img src="assets/img/dailycollect.png" alt="DailyCollect Logo">
+                    <h1>DAILYCOLLECT<span style="color:blue">.</span></h1>
                 </a>
 
                 <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>

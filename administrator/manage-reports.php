@@ -4,16 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include_once '../config/config.php';
 
-// Check user role
-if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php');
-    exit();
-}
-if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php');
-    exit();
-}
-
 // Handle report generation
 $data = [];
 $reportType = $_GET['report_type'] ?? 'users';
@@ -251,4 +241,4 @@ if ($reportType === 'notification') {
     }
 </script>
 </body>
-</html>
+</html> 

@@ -1,5 +1,49 @@
 <?php
+ob_start();
 include_once ('../config/config.php');
+
+// Handle user deletion
+if (isset($_GET['page']) && isset($_GET['user_id']) && base64_decode($_GET['page']) === 'ubpages/ubsettings/user/userAjax') {
+    $user_id = $_GET['user_id'];
+
+    // First, delete notifications for the user
+    $sql_notifications = "DELETE FROM notification WHERE user_id = ?";
+    if ($stmt_notifications = $mysqli->prepare($sql_notifications)) {
+        $stmt_notifications->bind_param("i", $user_id);
+        if (!$stmt_notifications->execute()) {
+            echo "Error deleting notifications: " . $mysqli->error;
+            exit;
+        }
+        $stmt_notifications->close();
+    } else {
+        echo "Error preparing statement for notifications: " . $mysqli->error;
+        exit;
+    }
+
+    // Then, delete the user
+    $sql_user = "DELETE FROM users WHERE user_id = ?";
+    if ($stmt_user = $mysqli->prepare($sql_user)) {
+        $stmt_user->bind_param("i", $user_id);
+        if ($stmt_user->execute()) {
+            // On success, redirect back to the referrer page
+            if (isset($_SERVER['HTTP_REFERER'])) {
+                header("Location: " . $_SERVER['HTTP_REFERER']);
+            } else {
+                // Fallback if referrer is not available
+                header("Location: admin.php?q=1");
+            }
+            exit;
+        } else {
+            echo "Error deleting user: " . $mysqli->error;
+            exit;
+        }
+        $stmt_user->close();
+    } else {
+        echo "Error preparing statement for user deletion: " . $mysqli->error;
+        exit;
+    }
+}
+
 session_start();
 
 // Initialize variables messages
@@ -25,8 +69,6 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 ?>
-
-
 <!DOCTYPE html>   
 <html>
     <head>  
@@ -68,7 +110,6 @@ $user_id = $_SESSION['user_id'];
         <link href="../assets/css/main.css" rel="stylesheet">
         <link  rel="stylesheet" href="admin_dashboard_css/styles.css">
         <script src="admin_dashboard_js/scripts.js" defer></script>
-
 
         <style>
             /* this is the css for the admin.php*/
@@ -182,7 +223,7 @@ $user_id = $_SESSION['user_id'];
 
                     <div class="sidebar"  id="mySidebar" style="background-image: url(../assets/img/hero-carousel/html1.jpg)">
                         <div class="side-header">
-                            <img src="./assets/img/ub2.png"  width="100" height="100" alt="Daily Collection"> 
+                            <img src="../images/vision-finance-logo.png"  width="100" height="100" alt="Daily Collection"> 
                         </div>
                         <hr style="border:1px solid; background-color:#4cae4c; border-color:#3B3131; color: white;">                       
                         <li class="menu"> <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">x  </a></li>
@@ -201,41 +242,241 @@ $user_id = $_SESSION['user_id'];
 
                 <?php
                 if (@$_GET['q'] == 1) { ?>
-                <div class = "col-sm-3" style="margin-left:18%; margin-top:3%; data-aos="fade-up data-aos-delay="100">
-                <a href="admin.php?q=2 & page=<?php echo base64_encode('../collector.php'); ?>"class = "card" style="background-color:skyblue">
-                <i class = "fa fa-users  mb-5" style = "font-size: 70px; color:white;"></i>
-                <h4 style = "color:white;">Total Collectors</h4>
-                <h5 style = "color:white;">
+                <!-- Dashboard Cards Container -->
+                <div class="container-fluid" style="margin-left: 270px; width: calc(100% - 280px); margin-top: 3%; min-height: 150vh; padding-bottom: 100px;">
+                    <!-- First Row -->
+                    <div class="row">
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../collector.php'); ?>" class="card" style="background-color:skyblue; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-users mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Total Collectors</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php    $sql = "SELECT * from users where role='collector'";
+                                    $result = $mysqli->query($sql);
+                                    $count = 0;
+                                    if ($result->num_rows > 0) {
+                                        while ($row = $result->fetch_assoc()) {
+                                            $count = $count + 1;
+                                        }
+                                    }
+                                    echo $count; ?>
+                                </h5>
+                            </a>
+                        </div>
 
-                <?php    $sql = "SELECT * from users where role='collector'";
-                    $result = $mysqli->query($sql);
-                    $count = 0;
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubusers/supervisor/viewSupervisor'); ?>" class="card" style="background-image: url(../assets/img/hero-carousel/java2.jpg); text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-users mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Total Contributors</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT * from users where role='contributor'";
+                                    $result = $mysqli->query($sql);
+                                    $count = 0;
+                                    if ($result->num_rows > 0) {
+                                        while ($row = $result->fetch_assoc()) {
+                                            $count = $count + 1;
+                                        }
+                                    }
+                                    echo $count; ?>
+                                </h5>
+                            </a>
+                        </div>
 
-                            $count = $count + 1;
-                        }
-                    }
-                    echo $count; ?>
-                    </h5></a></div>
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#28a745; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-money mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Total Collections</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COALESCE(SUM(amount), 0) as total from transaction";
+                                    $result = $mysqli->query($sql);
+                                    $total = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $total = $row['total'];
+                                    }
+                                    echo number_format($total, 2) . ' CFA'; ?>
+                                </h5>
+                            </a>
+                        </div>
+                    </div>
 
-                <div class = "col-sm-3" style="margin-top:3%;">
-                <a href="admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubusers/supervisor/viewSupervisor'); ?>" class = "card" style="background-image: url(../assets/img/hero-carousel/java2.jpg)">
-                <i class = "fa fa-users  mb-5" style = "font-size: 70px; color:white;"></i>
-                <h4 style = "color:white;">Total Contributors</h4>
-                <h5 style = "color:white;">
+                    <!-- Second Row -->
+                    <div class="row">
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('admin_dashboard'); ?>" class="card" style="background-color:#17a2b8; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-link mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Active Assignments</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COUNT(*) as count from assignments";
+                                    $result = $mysqli->query($sql);
+                                    $assignments = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $assignments = $row['count'];
+                                    }
+                                    echo $assignments; ?>
+                                </h5>
+                            </a>
+                        </div>
 
-                <?php  $sql = "SELECT * from users where role='contributor'";
-                    $result = $mysqli->query($sql);
-                    $count = 0;
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../notification'); ?>" class="card" style="background-color:#dc3545; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-bell mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Pending Notifications</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COUNT(*) as count from notification WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+                                    $result = $mysqli->query($sql);
+                                    $notifications = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $notifications = $row['count'];
+                                    }
+                                    echo $notifications; ?>
+                                </h5>
+                            </a>
+                        </div>
 
-                            $count = $count + 1;
-                        }
-                    }
-                    echo $count; ?>
-                    </h5></a></div>
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#6f42c1; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-chart-line mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">This Month</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COALESCE(SUM(amount), 0) as total from transaction WHERE MONTH(Date) = MONTH(CURDATE()) AND YEAR(Date) = YEAR(CURDATE())";
+                                    $result = $mysqli->query($sql);
+                                    $month_total = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $month_total = $row['total'];
+                                    }
+                                    echo number_format($month_total, 2) . ' CFA'; ?>
+                                </h5>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Third Row -->
+                    <div class="row">
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#ffc107; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-calendar mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Today's Collections</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COALESCE(SUM(amount), 0) as total from transaction WHERE DATE(Date) = CURDATE()";
+                                    $result = $mysqli->query($sql);
+                                    $today_total = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $today_total = $row['total'];
+                                    }
+                                    echo number_format($today_total, 2) . ' CFA'; ?>
+                                </h5>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../contributor_list.php'); ?>" class="card" style="background-color:#ff9800; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-star mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Top Contributor</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php
+                                    $sql = "SELECT t.username, SUM(t.amount) AS total_contribution FROM transaction t JOIN users u ON t.username = u.username AND u.role = 'contributor' GROUP BY t.username ORDER BY total_contribution DESC LIMIT 1";
+                                    $result = $mysqli->query($sql);
+                                    $top_contributor = 'N/A';
+                                    if ($result && $result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $top_contributor = $row['username'];
+                                    }
+                                    echo $top_contributor;
+                                ?>
+                                </h5>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#fd7e14; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-chart-bar mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Weekly Average</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COALESCE(AVG(daily_total), 0) as weekly_avg FROM (
+                                    SELECT DATE(Date) as date, SUM(amount) as daily_total 
+                                    FROM transaction 
+                                    WHERE Date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                                    GROUP BY DATE(Date)
+                                ) as daily_totals";
+                                    $result = $mysqli->query($sql);
+                                    $weekly_avg = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $weekly_avg = $row['weekly_avg'];
+                                    }
+                                    echo number_format($weekly_avg, 2) . ' CFA'; ?>
+                                </h5>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Fourth Row -->
+                    <div class="row">
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#20c997; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-user-plus mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Unassigned Contributors</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COUNT(*) as count FROM users u 
+                                    LEFT JOIN assignments a ON u.user_id = a.contributor_id 
+                                    WHERE u.role = 'contributor' AND a.contributor_id IS NULL";
+                                    $result = $mysqli->query($sql);
+                                    $unassigned = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $unassigned = $row['count'];
+                                    }
+                                    echo $unassigned; ?>
+                                </h5>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#e83e8c; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-clock mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Recent Transactions</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT COUNT(*) as count FROM transaction WHERE Date >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+                                    $result = $mysqli->query($sql);
+                                    $recent_transactions = 0;
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $recent_transactions = $row['count'];
+                                    }
+                                    echo $recent_transactions; ?>
+                                </h5>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-4" style="padding: 0 10px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>" class="card" style="background-color:#6f42c1; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                                <i class="fa fa-trophy mb-3" style="font-size: 60px; color:white;"></i>
+                                <h4 style="color:white; font-size: 16px;">Top Collector</h4>
+                                <h5 style="color:white; font-size: 18px;">
+                                <?php  $sql = "SELECT u.username, COALESCE(SUM(t.amount), 0) as total 
+                                    FROM users u 
+                                    LEFT JOIN transaction t ON u.user_id = t.user_id 
+                                    WHERE u.role = 'collector' 
+                                    GROUP BY u.user_id, u.username 
+                                    ORDER BY total DESC 
+                                    LIMIT 1";
+                                    $result = $mysqli->query($sql);
+                                    $top_collector = 'N/A';
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        $top_collector = $row['username'];
+                                    }
+                                    echo $top_collector; ?>
+                                </h5>
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <?php } ?>
                 
                 <?php
@@ -257,6 +498,7 @@ $user_id = $_SESSION['user_id'];
         </div>
     </body>
 </html>
+<?php ob_end_flush(); ?>
 
 
 

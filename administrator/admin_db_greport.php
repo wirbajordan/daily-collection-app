@@ -5,14 +5,14 @@ include_once '../config/config.php';
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php');//redirect to logged in if role not valide
+    header('Location: ../login.php');//redirect to logged in if role not valide
     exit();
 }
 
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php'); // Redirect to login if not logged in
+    header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }    
 

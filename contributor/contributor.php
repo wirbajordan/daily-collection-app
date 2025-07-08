@@ -5,16 +5,29 @@ include ('../config/config.php');
 
 // Check user role
 if ($_SESSION['role'] != 'contributor') {
-    header('Location: .../login.php');//redirect to logged in if role not valide
+    header('Location: ../login.php');//redirect to logged in if role not valide
     exit();
 }
 
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php'); // Redirect to login if not logged in
+    header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }    
+
+if (!isset($_SESSION["password"])) {
+    session_destroy();
+    header("Location: ../login.php");
+    exit();
+} else {
+    $email = $_SESSION['email'];
+    $username = $_SESSION['username'];
+    $password = $_SESSION['password'];
+    include_once ('../config/config.php');
+    echo '<span class="pull-right top title1" style="margin-left:40px;"><span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span> <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
+    . '<a href="../home.php"  style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
+}
 
 ?>
 
@@ -129,45 +142,28 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="header" style="background-color: ">
             <div class="container-fluid">
-                <div class="col-lg-12">
+                <div class="col-lg-12 d-flex justify-content-between align-items-center">
                     <span class="logo"><span style="margin-left: ;">Vision Finance</span></span>
-                    <?php
-                    if ((!($_SESSION ["password"]))) {
-                        session_destroy();
-                        header("location:.../login.php");
-                    } else {
-                        $email = $_SESSION['email'];
-                        $username = $_SESSION['username'];
-                        $password = $_SESSION['password'];
-
-                        include_once ('../config/config.php');
-
-                 
-                        echo '<span class="pull-right top title1" style="margin-left:40px;"><span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span> <span class="log log1" style="color:lightyellow">' . $username . '&nbsp;&nbsp;|&nbsp;&nbsp;'
-                        . '<a href="../home.php"  style="color:lightyellow"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</button></a></span>';
-                    }
-                    $result = mysqli_query($mysqli, "SELECT * FROM users WHERE username='$username'") or die('Error');
-                    ($row = mysqli_fetch_array($result));
-                    //$user_id = $row['user_id'];
-                    //$branch = $row['branch'];
-
-                  
-                    ?>
-l
+                    <span class="pull-right top title1" style="margin-left:40px;">
+                        <span style="color:white"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hello,</span>
+                        <span class="log log1" style="color:lightyellow">
+                            <?php echo htmlspecialchars($username); ?>&nbsp;&nbsp;|&nbsp;&nbsp;
+                            <a href="../home.php" style="color:lightyellow">
+                                <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout
+                            </a>
+                        </span>
+                    </span>
                 </div>
       
                 <!-- navbar -->
                 <nav id="navbar" class="navbar">
                     <img src="../images/vision-finance-logo.png" class="dailycollect" width="65" height="65" alt="Vision Finance" style="margin-left:-13%;"> 
                     <ul>                        
-                        <li <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?>><a href="contributor_dashboard.php?q=1" style="color: white;" >Home<span class="sr-only" >(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_deposite'); ?>" style="color: white;">Deposit Contribution<span class="sr-only">(current)</span></a></li>
-                        
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('contributor_dashboard'); ?>" style="color: white;">Consult notifications<span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode('call_customer_support'); ?>" style="color: white;">Call customer support<span class="sr-only">(current)</span></a></li>
-                        
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2 & page=<?php echo base64_encode(''); ?>&branch=<?php echo'' . $branch . '' ?>&uid=<?php echo'' . $user_id . '' ?>" style="color: white;">   <span class="sr-only">(current)</span></a></li>
-                        <li <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?>><a href="contributor.php?q=2" style="color: white;"><span class="sr-only">(current)</span></a></li>                         
+                        <li><a href="contributor.php?page=<?php echo base64_encode('contributor_dashboard'); ?>" style="color: white;">Home<span class="sr-only">(current)</span></a></li>
+                        <li><a href="contributor.php?page=<?php echo base64_encode('contributor_deposite'); ?>" style="color: white;">Deposit Contribution<span class="sr-only">(current)</span></a></li>
+                        <li><a href="contributor.php?page=<?php echo base64_encode('notifications'); ?>" style="color: white;">Consult Notifications<span class="sr-only">(current)</span></a></li>
+                        <li><a href="contributor.php?page=<?php echo base64_encode('call_customer_support'); ?>" style="color: white;">Call Customer Support<span class="sr-only">(current)</span></a></li>
+                        <li><a href="contributor.php?page=<?php echo base64_encode('rate_collector'); ?>" style="color: white;">Rate Collector</a></li>
                     </ul>
                 </nav>
 
@@ -176,22 +172,26 @@ l
                 <div class="container">
                     <div class="row">
                         <div class=" col-md-12">
-
                             <?php
-                            if (@$_GET['q'] == 2) {
-                                if (isset($_REQUEST ["page"])) {
-                                    $page = base64_decode($_REQUEST ["page"]) . ".php";
-                                    if (file_exists($page)) {
-                                        include ($page);
-                                    } else {
-                                        echo 'page dos not exist';
-                                    }
+                            // Dynamic content loading
+                            $allowed_pages = [
+                                'contributor_dashboard.php',
+                                'contributor_deposite.php',
+                                'notifications.php',
+                                'call_customer_support.php',
+                                'rate_collector.php'
+                            ];
+                            if (isset($_GET['page'])) {
+                                $page = base64_decode($_GET['page']) . ".php";
+                                if (in_array($page, $allowed_pages) && file_exists(__DIR__ . "/$page")) {
+                                    include($page);
                                 } else {
-                                    include ('contributor.php'); 
+                                    echo 'Page does not exist.';
                                 }
+                            } else {
+                                include('contributor_dashboard.php'); // Default page
                             }
                             ?>
-
                         </div>
                     </div>
                 </div>

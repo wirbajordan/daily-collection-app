@@ -17,5 +17,4 @@ if ($mysqli->connect_error) {
 }
 
 // No message on successful connection
- echo "connection successful";
 ?>

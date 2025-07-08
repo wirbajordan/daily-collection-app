@@ -162,33 +162,6 @@ if (!$assignments_result) {
     <!-- Test Section (remove in production) -->
     <!-- (Removed) -->
 
-    <!-- Notification Send Form (Embedded from notification.php) -->
-    <div class="container-main mb-4">
-        <div id="notificationAlert"></div>
-        <div class="card mb-4 notification-form">
-            <div class="card-header bg-primary text-white"><i class="fas fa-paper-plane"></i> Send Notification</div>
-            <div class="card-body">
-                <form method="POST" autocomplete="off" id="notificationForm" action="../notification.php">
-                    <div class="row g-2 align-items-center mb-2">
-                        <div class="col-md-4">
-                            <select name="recipient" class="form-select" required>
-                                <option value="all">All (Contributors & Collectors)</option>
-                                <option value="contributors">Contributors Only</option>
-                                <option value="collectors">Collectors Only</option>
-                            </select>
-                        </div>
-                        <div class="col-md-8">
-                            <textarea name="message" class="form-control" required placeholder="Enter your notification message..."></textarea>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" name="send_notification" class="btn btn-primary px-4"><i class="fas fa-paper-plane"></i> Send</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <!-- Assignment Form -->
         <div class="col-lg-5">
@@ -365,17 +338,6 @@ if (!$assignments_result) {
             alert('Invalid contributor ID: ' + contributorId);
         }
     }
-</script>
-
-<script>
-console.log('Test script loaded');
-$(document).ready(function() {
-    console.log('jQuery ready');
-    $('#notificationForm').on('submit', function(e) {
-        e.preventDefault();
-        console.log('Form submit intercepted');
-    });
-});
 </script>
 
 </body>

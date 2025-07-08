@@ -1,4 +1,3 @@
- 
 /* this is the css for the deposite contribution in the contributor dashboard*/
 .deposit-button {
     text-decoration: none; /* Remove underline from the link */
@@ -18,6 +17,12 @@
 
 .deposit-button button:hover {
     background-color: #218838; /* Darker green on hover */
+}
+
+/* Center and reduce width for deposit contribution form */
+.deposit-form-container {
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 

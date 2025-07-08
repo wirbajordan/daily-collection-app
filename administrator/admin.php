@@ -44,6 +44,60 @@ if (isset($_GET['page']) && isset($_GET['user_id']) && base64_decode($_GET['page
     }
 }
 
+// Handle un-assignment (now via POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unassign_contributor_id'])) {
+    $contributor_id_to_unassign = intval($_POST['unassign_contributor_id']);
+    // Debug: Log the unassign attempt
+    error_log("Unassign attempt for contributor ID: " . $contributor_id_to_unassign);
+    // Add error handling and logging
+    if ($contributor_id_to_unassign > 0) {
+        // First check if the assignment exists
+        $check_stmt = $mysqli->prepare("SELECT contributor_id FROM assignments WHERE contributor_id = ?");
+        if ($check_stmt) {
+            $check_stmt->bind_param("i", $contributor_id_to_unassign);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            if ($check_result->num_rows > 0) {
+                // Assignment exists, proceed with deletion
+                $unassign_stmt = $mysqli->prepare("DELETE FROM assignments WHERE contributor_id = ?");
+                if ($unassign_stmt) {
+                    $unassign_stmt->bind_param("i", $contributor_id_to_unassign);
+                    if ($unassign_stmt->execute()) {
+                        if ($unassign_stmt->affected_rows > 0) {
+                            $_SESSION['message'] = 'Assignment successfully removed.';
+                            error_log("Assignment removed successfully for contributor ID: " . $contributor_id_to_unassign);
+                        } else {
+                            $_SESSION['error'] = 'No assignment found to remove.';
+                            error_log("No rows affected when trying to remove assignment for contributor ID: " . $contributor_id_to_unassign);
+                        }
+                    } else {
+                        $_SESSION['error'] = 'Failed to remove assignment: ' . $mysqli->error;
+                        error_log("Failed to execute unassign query: " . $mysqli->error);
+                    }
+                    $unassign_stmt->close();
+                } else {
+                    $_SESSION['error'] = 'Database error: ' . $mysqli->error;
+                    error_log("Failed to prepare unassign statement: " . $mysqli->error);
+                }
+            } else {
+                $_SESSION['error'] = 'No assignment found for this contributor.';
+                error_log("No assignment found for contributor ID: " . $contributor_id_to_unassign);
+            }
+            $check_stmt->close();
+        } else {
+            $_SESSION['error'] = 'Database error checking assignment: ' . $mysqli->error;
+            error_log("Failed to prepare check statement: " . $mysqli->error);
+        }
+    } else {
+        $_SESSION['error'] = 'Invalid contributor ID.';
+        error_log("Invalid contributor ID provided: " . $_POST['unassign_contributor_id']);
+    }
+    // Redirect back to the same admin dashboard page
+    $redirect_url = 'admin.php?q=2&page=' . urlencode(base64_encode('admin_dashboard'));
+    header('Location: ' . $redirect_url);
+    exit();
+}
+
 session_start();
 
 // Initialize variables messages
@@ -52,20 +106,17 @@ $errorMessage = '';
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php');//redirect to logged in if role not valide
+    header('Location: ../login.php'); //redirect to logged in if role not valid
     exit();
 }
 
-
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php'); // Redirect to login if not logged in
+    header('Location: ../login.php'); // Redirect to login if not logged in
     exit();
 }    
 
-
- 
- // Assuming user ID is stored in session after login
+// Assuming user ID is stored in session after login
 $user_id = $_SESSION['user_id'];
 
 ?>
@@ -228,11 +279,12 @@ $user_id = $_SESSION['user_id'];
                         <hr style="border:1px solid; background-color:#4cae4c; border-color:#3B3131; color: white;">                       
                         <li class="menu"> <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">x  </a></li>
                         <a  <?php if (@$_GET['q'] == 1) echo 'class="active"'; ?> href="admin.php?q=1"><span class="fa fa-house" style="color:white; font-size: 15px;">  Home<span class="sr-only">(current)</span></span></a><br><br><br>
-                        <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../collector_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">   Collectors<span class="sr-only">(current)</span></span></a><br><br><br>
-                        <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../contributor_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">  Contributors<span class="sr-only">(current)</span></span></a><br><br><br>
+                        <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2&page=<?php echo base64_encode('../collector_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">   Collectors<span class="sr-only">(current)</span></span></a><br><br><br>
+                        <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2&page=<?php echo base64_encode('../contributor_list'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">  Contributors<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('admin_dashboard'); ?>"><span class="fa fa-user" style="color:white; font-size: 15px;">Assign  Collector<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../manage-reports'); ?>"><span class="fa fa-book" style="color:white; font-size: 15px;">  Report<span class="sr-only">(current)</span></span></a><br><br><br>
                         <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2 & page=<?php echo base64_encode('../notification'); ?>"><span class="fa fa-book" style="color:white; font-size: 15px;">  Notification<span class="sr-only">(current)</span></span></a><br><br><br>
+                        <a  <?php if (@$_GET['q'] == 2) echo 'class="active"'; ?> href="admin.php?q=2&page=<?php echo base64_encode('admin_collector_ratings'); ?>"><span class="fa fa-star" style="color:white; font-size: 15px;">  Collector Ratings<span class="sr-only">(current)</span></span></a><br><br><br>
                     </div>
                     <!---->
                 </div>
@@ -247,7 +299,7 @@ $user_id = $_SESSION['user_id'];
                     <!-- First Row -->
                     <div class="row">
                         <div class="col-sm-4" style="padding: 0 10px;">
-                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../collector.php'); ?>" class="card" style="background-color:skyblue; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                            <a href="admin.php?q=2&page=<?php echo base64_encode('../collector_list'); ?>" class="card" style="background-color:skyblue; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
                                 <i class="fa fa-users mb-3" style="font-size: 60px; color:white;"></i>
                                 <h4 style="color:white; font-size: 16px;">Total Collectors</h4>
                                 <h5 style="color:white; font-size: 18px;">
@@ -265,7 +317,7 @@ $user_id = $_SESSION['user_id'];
                         </div>
 
                         <div class="col-sm-4" style="padding: 0 10px;">
-                            <a href="admin.php?q=2 & page=<?php echo base64_encode('ubpages/ubusers/supervisor/viewSupervisor'); ?>" class="card" style="background-image: url(../assets/img/hero-carousel/java2.jpg); text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                            <a href="admin.php?q=2&page=<?php echo base64_encode('../contributor_list'); ?>" class="card" style="background-image: url(../assets/img/hero-carousel/java2.jpg); text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
                                 <i class="fa fa-users mb-3" style="font-size: 60px; color:white;"></i>
                                 <h4 style="color:white; font-size: 16px;">Total Contributors</h4>
                                 <h5 style="color:white; font-size: 18px;">
@@ -374,7 +426,7 @@ $user_id = $_SESSION['user_id'];
                         </div>
 
                         <div class="col-sm-4" style="padding: 0 10px;">
-                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../contributor_list.php'); ?>" class="card" style="background-color:#ff9800; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
+                            <a href="admin.php?q=2 & page=<?php echo base64_encode('../contributor_list'); ?>" class="card" style="background-color:#ff9800; text-align: center; padding: 20px; margin-bottom: 30px; min-height: 200px;">
                                 <i class="fa fa-star mb-3" style="font-size: 60px; color:white;"></i>
                                 <h4 style="color:white; font-size: 16px;">Top Contributor</h4>
                                 <h5 style="color:white; font-size: 18px;">
@@ -484,6 +536,10 @@ $user_id = $_SESSION['user_id'];
                     if (isset($_REQUEST ["page"])) {
                         $page = base64_decode($_REQUEST ["page"]) . ".php";
                         if (file_exists($page)) {
+                            // Define constant to indicate this is included from admin.php
+                            if (strpos($page, 'admin_dashboard') !== false) {
+                                define('INCLUDED_FROM_ADMIN', true);
+                            }
                             include ($page);
                         } else {
                             echo 'page dos not exist';

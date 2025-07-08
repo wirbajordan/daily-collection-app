@@ -247,8 +247,22 @@ $avgContribution = $totalCount ? ($totalSum / $totalCount) : 0;
     </div>
   </div>
 </div>
+<!-- Add Show QR Code Button -->
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#qrModal">Show QR Code</button>
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Your QR Code</h5></div>
+      <div class="modal-body text-center">
+        <div id="collector-qrcode"></div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- SCRIPTS at the end of the body -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <script>
 // Tab switching functions for navigation
 function showRegisterTab() {
@@ -319,6 +333,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 msgDiv.textContent = 'An error occurred.';
             });
         };
+        // --- QR Code Generation ---
+        var collectorId = "<?php echo $_SESSION['user_id']; ?>";
+        var qrDiv = document.getElementById("collector-qrcode");
+        if (qrDiv && qrDiv.childNodes.length === 0) {
+            new QRCode(qrDiv, collectorId);
+        }
     } catch(e) {
         console.error("An error occurred in the dashboard script:", e);
     }

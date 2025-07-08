@@ -88,40 +88,46 @@ if (isset($_POST ["ok"])) {
         ======================================================== -->
 
         <style>
-            .body{
+            body{
                 background-color: #4cae4c;
             }
 
             .fm{
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                width: 280px;
-                z-index: 10;
+                width: 320px;
+                z-index: 1000;
                 max-height: 90vh;
                 overflow-y: auto;
-                padding: 20px;
-                background: rgba(0,0,0,0.6);
-                border-radius: 10px;
+                padding: 30px;
+                background: rgba(0,0,0,0.8);
+                border-radius: 15px;
                 text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             }
-
-
 
             .form-control:focus {
                 z-index: 10;
                 height: 40px;
                 border-color: #4cae4c;
+                box-shadow: 0 0 0 0.2rem rgba(76, 174, 76, 0.25);
             }
 
             .btns{
                 background-color: #7a43b6;
             }
+            
             .info{
-                width: 600;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
             }
 
+            .hero {
+                position: relative;
+                height: 100vh;
+            }
         </style>
     </head>
 

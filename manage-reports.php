@@ -6,11 +6,11 @@ include_once '../config/config.php';
 
 // Check user role
 if ($_SESSION['role'] != 'administrator') {
-    header('Location: .../login.php');
+    header('Location: ../login.php');
     exit();
 }
 if (!isset($_SESSION['user_id'])) {
-    header('Location: .../login.php');
+    header('Location: ../login.php');
     exit();
 }
 

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | DailyCollect & Vision Microfinance</title>
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .contact-section {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 40px 30px;
+            margin-top: 40px;
+        }
+        .contact-title {
+            color: #007bff;
+            font-weight: 700;
+        }
+        .contact-info i {
+            color: #007bff;
+            margin-right: 10px;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background: #007bff;
+            border: none;
+        }
+        .map-responsive {
+            overflow: hidden;
+            padding-bottom: 56.25%;
+            position: relative;
+            height: 0;
+        }
+        .map-responsive iframe {
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <a href="../home.php" class="btn btn-danger logout-btn">Logout</a>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 contact-section">
+                <h2 class="contact-title mb-4">Contact Us</h2>
+                <p>Have questions about DailyCollect or Vision Microfinance? Reach out to us using the form below or via our contact details.</p>
+                <div class="row mb-4">
+                    <div class="col-md-6 contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Vision Street, Douala, Cameroon</p>
+                        <p><i class="fas fa-envelope"></i> info@visionmicrofinance.com</p>
+                        <p><i class="fas fa-phone"></i> +237 6 99 99 99 99</p>
+                        <p><i class="fas fa-globe"></i> www.visionmicrofinance.com</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="map-responsive">
+                            <iframe src="https://www.google.com/maps?q=Douala,+Cameroon&output=embed" width="100%" height="200" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <form action="#" method="post" id="contactForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <input type="text" class="form-control" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" name="message" rows="5" placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                    <div id="formMessage" class="mt-3"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/vendor/fontawesome-free/js/all.min.js"></script>
+    <script>
+        // Simple AJAX form submission (demo only, no backend)
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('formMessage').innerHTML = '<span class="text-success">Thank you for contacting us! We will get back to you soon.</span>';
+            this.reset();
+        });
+    </script>
+</body>
+</html> 
